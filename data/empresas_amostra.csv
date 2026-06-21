@@ -1,0 +1,11 @@
+ticker;empresa;setor;preco;pl;roe;roic;margem_liquida;dividend_yield;divida_liquida_ebitda;liquidez_corrente;classificacao
+PETR4;Petrobras;Petróleo e Gás;38.50;5.20;28.40;18.70;22.50;12.30;1.10;1.45;Forte
+VALE3;Vale;Mineração;62.80;7.10;21.30;15.20;18.90;8.50;0.80;1.60;Forte
+ITUB4;Itaú Unibanco;Bancos;34.20;8.90;19.80;13.40;16.70;6.20;0.00;1.30;Forte
+WEGE3;WEG;Indústria;42.10;32.50;25.60;21.80;17.40;1.80;0.30;2.10;Atenção
+ABEV3;Ambev;Bebidas;12.60;14.20;13.10;10.50;15.90;5.40;0.20;1.80;Atenção
+MGLU3;Magazine Luiza;Varejo;2.10;-4.80;-12.30;-8.40;-5.60;0.00;3.20;0.90;Risco
+CASH3;Méliuz;Tecnologia;6.40;-8.20;-18.70;-11.60;-9.30;0.00;1.50;1.10;Risco
+BBAS3;Banco do Brasil;Bancos;27.90;4.80;22.10;14.30;18.20;10.40;0.00;1.25;Forte
+LREN3;Lojas Renner;Varejo;16.80;18.70;10.20;8.50;7.90;3.10;1.40;1.55;Atenção
+RENT3;Localiza;Aluguel de Veículos;46.30;24.60;14.90;9.80;12.40;2.00;2.80;1.20;Atenção
