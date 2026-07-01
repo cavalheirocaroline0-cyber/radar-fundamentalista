@@ -227,3 +227,5 @@ Em desenvolvimento.
 * Gerar prints e evidências visuais;
 * Publicar o projeto no GitHub;
 * Transformar o projeto em um case para LinkedIn e entrevistas.
+* Banco de dados no Neon
+  
