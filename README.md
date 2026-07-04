@@ -308,4 +308,9 @@ Em desenvolvimento.
 * Publicar o projeto no GitHub;
 * Transformar o projeto em um case para LinkedIn e entrevistas.
 * Banco de dados no Neon
-  
+  ✅ Infraestrutura online
+✅ Metabase no Railway
+✅ Banco Neon conectado
+✅ Dashboard V2 criado
+✅ Identidade textual inicial
+✅ Primeira versão apresentável em PDF
