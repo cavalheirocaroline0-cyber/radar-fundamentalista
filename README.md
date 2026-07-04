@@ -107,10 +107,39 @@ radar-fundamentalista/
 ├── dashboard/
 └── README.md
 ```
+## Site
+
+Radar Fundamentalista
+├── Página inicial
+│   ├── O que é o Radar
+│   ├── Para quem é
+│   ├── Como funciona a classificação
+│   └── Botão: Acessar dashboard
+│
+├── Dashboard Metabase
+│   ├── Visão geral
+│   ├── Ranking de empresas
+│   ├── Empresas por setor
+│   ├── Maiores dividend yields
+│   ├── Melhores ROEs
+│   ├── Atenção com dívida
+│   └── Tabela comparativa
+│
+└── Metodologia
+    ├── Indicadores usados
+    ├── Regras de classificação
+    ├── Limitações
+    └── Aviso de não recomendação
 
 ---
 
 ## Documentação do Projeto
+
+Frente 1 — Produto / Experiência / Layout
+Criar a cara do Radar Fundamentalista.
+
+Frente 2 — Dados / Automação / Escala
+Colocar mais empresas, atualização automática, regras, tratamento e histórico.
 
 ### Produto
 
@@ -158,7 +187,19 @@ radar-fundamentalista/
 * SQL;
 * PostgreSQL;
 * Metabase, Power BI ou Looker Studio para dashboard;
-* GitHub para publicação do portfólio.
+* GitHub para publicação do portfólio;
+* Neon;
+* Railway;
+* Docker Image;
+* Metabase;
+* Postgres interno do Railway;
+* variáveis de ambiente;
+* porta 3000;
+* SSL;
+* logs;
+* erro 502;
+* Hobby plan;
+* conexão com banco.
 
 ---
 
@@ -214,7 +255,46 @@ Este projeto evidencia competências em:
 ---
 
 ## Status do Projeto
+MVP funcional + configuração da experiência do usuário
+Conectar o banco correto do Neon
+Organizar as tabelas no Metabase
+Criar cards
+Criar dashboard
+Personalizar layout
+Definir narrativa
+Preparar compartilhamento
+Validar com pessoas
 
+## Produto
+Discovery
+Definição de problema
+Proposta de valor
+MVP
+Modelagem de dados
+Protótipo técnico
+Deploy
+Infraestrutura cloud
+Construção da experiência do MVP
+Dashboard
+Validação de valor
+Preparação para usuários
+Feedback
+Iteração
+Escala de dados
+Análises avançadas
+Monetização
+Produto com cadastro/assinatura
+
+## Próximos Passos
+tabela comparativa
+indicadores principais
+ranking por classificação
+empresas por setor
+alertas de dívida
+oportunidades por múltiplos
+dividend yield
+ROE
+margem
 Em desenvolvimento.
 
 ---
