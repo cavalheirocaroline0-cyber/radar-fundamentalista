@@ -314,3 +314,23 @@ Em desenvolvimento.
 ✅ Dashboard V2 criado
 ✅ Identidade textual inicial
 ✅ Primeira versão apresentável em PDF
+
+
+
+http://metabase-production-5a0a.up.railway.app/public/dashboard/69f6f070-f154-4e03-9627-f9058ab16b78
+
+
+Fonte pública
+↓
+Coleta automática
+↓
+Tratamento e padronização
+↓
+Regras de classificação
+↓
+Histórico
+↓
+Neon
+↓
+Metabase atualizado
+
