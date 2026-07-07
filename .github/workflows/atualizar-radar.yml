@@ -33,6 +33,10 @@ jobs:
           fi
           echo "DATABASE_URL=$DATABASE_URL" > .env
 
-      - name: Rodar atualização do Radar
+      - name: Atualizar empresas fundamentalistas
         run: |
           python scripts/atualiza_50_empresas.py
+
+      - name: Atualizar indicadores macro
+        run: |
+          python scripts/coleta_bcb_macro.py
