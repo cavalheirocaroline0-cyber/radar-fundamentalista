@@ -152,6 +152,16 @@ def salvar_no_neon(df):
     data_coleta = df["data_coleta"].iloc[0]
 
     with engine.begin() as conn:
+        conn.execute(text("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_empresas_ticker
+            ON empresas(ticker);
+        """))
+
+        conn.execute(text("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_indicadores_ticker_data
+            ON indicadores_fundamentalistas(ticker, data_coleta);
+        """))
+
         conn.execute(
             text("DELETE FROM historico_fundamentalista WHERE data_coleta = :data_coleta"),
             {"data_coleta": data_coleta},
@@ -170,6 +180,75 @@ def salvar_no_neon(df):
             if_exists="append",
             index=False,
         )
+
+        conn.execute(text("""
+            INSERT INTO empresas (
+                ticker,
+                empresa,
+                setor,
+                ativo,
+                fonte
+            )
+            SELECT DISTINCT
+                ticker,
+                empresa,
+                setor,
+                TRUE AS ativo,
+                fonte
+            FROM empresas_fundamentalistas
+            ON CONFLICT (ticker)
+            DO UPDATE SET
+                empresa = EXCLUDED.empresa,
+                setor = EXCLUDED.setor,
+                ativo = EXCLUDED.ativo,
+                fonte = EXCLUDED.fonte;
+        """))
+
+        conn.execute(text("""
+            INSERT INTO indicadores_fundamentalistas (
+                ticker,
+                data_coleta,
+                preco,
+                pl,
+                pvp,
+                roe,
+                margem_liquida,
+                dividend_yield,
+                divida_liquida_ebitda,
+                liquidez_corrente,
+                valor_mercado,
+                classificacao,
+                score,
+                fonte
+            )
+            SELECT
+                ticker,
+                data_coleta,
+                preco,
+                pl,
+                pvp,
+                roe,
+                margem_liquida,
+                dividend_yield,
+                NULL AS divida_liquida_ebitda,
+                NULL AS liquidez_corrente,
+                NULL AS valor_mercado,
+                classificacao,
+                score,
+                fonte
+            FROM empresas_fundamentalistas
+            ON CONFLICT (ticker, data_coleta)
+            DO UPDATE SET
+                preco = EXCLUDED.preco,
+                pl = EXCLUDED.pl,
+                pvp = EXCLUDED.pvp,
+                roe = EXCLUDED.roe,
+                margem_liquida = EXCLUDED.margem_liquida,
+                dividend_yield = EXCLUDED.dividend_yield,
+                classificacao = EXCLUDED.classificacao,
+                score = EXCLUDED.score,
+                fonte = EXCLUDED.fonte;
+        """))
 
 
 def main():
