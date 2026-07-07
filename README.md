@@ -334,3 +334,32 @@ Neon
 ↓
 Metabase atualizado
 
+## GitHub Actions
+→ roda seu script Python
+→ usa a senha do Neon guardada como segredo
+→ atualiza o Neon
+→ Metabase online lê os dados atualizados
+
+Fase 1:
+GitHub Actions diário às 07:30
+- Fundamentus
+- histórico
+- score
+- Neon
+- Metabase
+
+Fase 2:
+Adicionar IBGE e Banco Central
+- IPCA
+- Selic
+- dólar
+- desemprego/PIB quando disponível
+
+Fase 3:
+Criar rotina de mercado
+- Bitcoin
+- ouro
+- prata
+- índice/bolsa
+- talvez mais de uma vez ao dia
+
