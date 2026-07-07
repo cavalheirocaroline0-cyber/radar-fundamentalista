@@ -23,8 +23,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas requests lxml sqlalchemy psycopg2-binary python-dotenv
 
-      - name: Rodar atualização do Radar
+      - name: Criar arquivo .env temporário
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL não configurada nos Secrets do GitHub"
+            exit 1
+          fi
+          echo "DATABASE_URL=$DATABASE_URL" > .env
+
+      - name: Rodar atualização do Radar
         run: |
           python scripts/atualiza_50_empresas.py
