@@ -133,6 +133,30 @@ Radar Fundamentalista
 
 ---
 
+``
+ativos_mercado
+→ Bitcoin já está aqui.
+
+indicadores_macro
+→ Dólar e Selic já estão aqui.
+
+empresas_fundamentalistas
+→ É a tabela principal que o Metabase usa hoje no dashboard.
+
+historico_fundamentalista
+→ É o histórico real das coletas.
+
+empresas
+→ Estrutura profissional de cadastro das empresas, mas precisamos ver se tem dados.
+
+indicadores_fundamentalistas
+→ Estrutura profissional dos indicadores, mas precisamos ver se tem dados.
+
+playing_with_neon
+→ Tabela de teste. Podemos ignorar e apagar depois.
+
+``
+
 ## Documentação do Projeto
 
 Frente 1 — Produto / Experiência / Layout
