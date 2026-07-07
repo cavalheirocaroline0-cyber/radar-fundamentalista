@@ -40,3 +40,7 @@ jobs:
       - name: Atualizar indicadores macro
         run: |
           python scripts/coleta_bcb_macro.py
+
+      - name: Atualizar Bitcoin
+        run: |
+          python scripts/coleta_cripto.py
