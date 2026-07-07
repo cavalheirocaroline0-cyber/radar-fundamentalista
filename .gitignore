@@ -1,0 +1,15 @@
+
+# Arquivos locais e segredos
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+
+# Exportações locais do dashboard
+dashboard/*.html
+dashboard/*_files/
+dashboard-radar-fundamentalista.jpeg
+
+# Dumps locais do banco
+data/*_dump.sql
