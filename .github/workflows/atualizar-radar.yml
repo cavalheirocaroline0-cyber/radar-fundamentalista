@@ -45,6 +45,10 @@ jobs:
         run: |
           python scripts/coleta_ibge.py
 
+      - name: Atualizar ouro e prata
+        run: |
+          python scripts/coleta_metais.py
+
       - name: Atualizar Bitcoin
         run: |
           python scripts/coleta_cripto.py
