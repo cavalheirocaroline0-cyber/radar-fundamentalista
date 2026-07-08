@@ -37,9 +37,13 @@ jobs:
         run: |
           python scripts/atualiza_50_empresas.py
 
-      - name: Atualizar indicadores macro
+      - name: Atualizar indicadores macro Banco Central
         run: |
           python scripts/coleta_bcb_macro.py
+
+      - name: Atualizar IPCA IBGE
+        run: |
+          python scripts/coleta_ibge.py
 
       - name: Atualizar Bitcoin
         run: |
