@@ -119,3 +119,29 @@ def listar_macro():
         "indicadores": indicadores,
         "ativos": ativos
     }
+
+from fastapi import HTTPException
+
+@app.get("/empresas/{ticker}")
+def buscar_empresa(ticker: str):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM empresas_fundamentalistas
+        WHERE UPPER(ticker) = UPPER(%s)
+        LIMIT 1;
+    """, (ticker,))
+
+    empresa = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if not empresa:
+        raise HTTPException(status_code=404, detail="Empresa não encontrada")
+
+    return {
+        "empresa": empresa
+    }

@@ -84,3 +84,16 @@ export async function buscarMacro(): Promise<DadosMacro> {
     ativos: dados.ativos,
   };
 }
+
+export async function buscarEmpresaPorTicker(ticker: string): Promise<Empresa> {
+  const resposta = await fetch(`${API_URL}/empresas/${ticker}`, {
+    cache: "no-store",
+  });
+
+  if (!resposta.ok) {
+    throw new Error("Erro ao buscar empresa da API");
+  }
+
+  const dados = await resposta.json();
+  return dados.empresa;
+}
