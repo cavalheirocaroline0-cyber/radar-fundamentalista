@@ -13,3 +13,9 @@ dashboard-radar-fundamentalista.jpeg
 
 # Dumps locais do banco
 data/*_dump.sql
+
+# Backend
+backend/.env
+backend/venv/
+__pycache__/
+*.pyc
