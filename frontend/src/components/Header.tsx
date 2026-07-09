@@ -5,6 +5,8 @@ const links = [
   { href: "/empresas", label: "Empresas" },
   { href: "/ranking", label: "Ranking" },
   { href: "/macro", label: "Macro" },
+  { href: "/beta", label: "Beta" },
+  { href: "/feedback", label: "Avaliar" },
 ];
 
 export default function Header() {
