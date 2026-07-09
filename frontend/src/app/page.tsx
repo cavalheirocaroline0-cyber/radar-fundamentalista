@@ -1,3 +1,5 @@
+import Header from "@/components/Header";
+
 const indicadoresMacro = [
   { nome: "Selic", valor: "15,00%", detalhe: "Taxa básica de juros" },
   { nome: "IPCA", valor: "4,23%", detalhe: "Inflação acumulada" },
@@ -17,6 +19,7 @@ const rankings = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      <Header />
       <section className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-8">
         <header className="flex flex-col gap-4 border-b border-white/10 pb-8 md:flex-row md:items-center md:justify-between">
           <div>
