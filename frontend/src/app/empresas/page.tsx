@@ -1,26 +1,8 @@
-import Link from "next/link";
 import Header from "@/components/Header";
+import EmpresasTabela from "@/components/EmpresasTabela";
 import { buscarEmpresas } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
-
-function formatarNumero(valor: number | string | null | undefined) {
-  if (valor === null || valor === undefined) return "-";
-
-  const numero = Number(valor);
-
-  if (Number.isNaN(numero)) return "-";
-
-  return numero.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatarPercentual(valor: number | string | null | undefined) {
-  if (valor === null || valor === undefined) return "-";
-  return `${formatarNumero(valor)}%`;
-}
 
 export default async function EmpresasPage() {
   let empresas = [];
@@ -64,72 +46,7 @@ export default async function EmpresasPage() {
             </p>
           </div>
         ) : (
-          <div className="mt-8 overflow-x-auto rounded-3xl border border-white/10">
-            <table className="w-full min-w-[1000px] text-left text-sm">
-              <thead className="bg-white/10 text-slate-300">
-                <tr>
-                  <th className="px-4 py-3">Ticker</th>
-                  <th className="px-4 py-3">Setor</th>
-                  <th className="px-4 py-3">Classificação</th>
-                  <th className="px-4 py-3">Preço</th>
-                  <th className="px-4 py-3">P/L</th>
-                  <th className="px-4 py-3">P/VP</th>
-                  <th className="px-4 py-3">ROE</th>
-                  <th className="px-4 py-3">DY</th>
-                  <th className="px-4 py-3">Score</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {empresas.map((empresa: any) => (
-                  <tr key={empresa.ticker} className="border-t border-white/10">
-                    <td className="px-4 py-4 font-bold text-emerald-300">
-                      <Link
-                        href={`/empresa/${empresa.ticker}`}
-                        className="transition hover:text-emerald-100 hover:underline"
-                      >
-                        {empresa.ticker}
-                      </Link>
-                    </td>
-
-                    <td className="px-4 py-4 text-slate-300">
-                      {empresa.setor || "-"}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs">
-                        {empresa.classificacao || "-"}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      R$ {formatarNumero(empresa.preco)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      {formatarNumero(empresa.pl)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      {formatarNumero(empresa.pvp)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      {formatarPercentual(empresa.roe)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      {formatarPercentual(empresa.dividend_yield)}
-                    </td>
-
-                    <td className="px-4 py-4 font-bold text-emerald-300">
-                      {empresa.score}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EmpresasTabela empresas={empresas} />
         )}
       </section>
     </main>
