@@ -1,12 +1,23 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import get_connection
 
 app = FastAPI(title="Radar Fundamentalista API")
 
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
+frontend_url = os.getenv("FRONTEND_URL")
+
+if frontend_url:
+    origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -144,4 +155,104 @@ def buscar_empresa(ticker: str):
 
     return {
         "empresa": empresa
+    }
+
+from typing import Optional
+from pydantic import BaseModel
+
+
+class CadastroBeta(BaseModel):
+    nome: str
+    email: str
+    perfil: Optional[str] = None
+    investe_hoje: Optional[str] = None
+    interesse: Optional[str] = None
+
+
+class FeedbackBeta(BaseModel):
+    nome: Optional[str] = None
+    email: Optional[str] = None
+    nota: Optional[int] = None
+    facilidade: Optional[str] = None
+    utilidade: Optional[str] = None
+    pagaria: Optional[str] = None
+    valor_sugerido: Optional[str] = None
+    comentario: Optional[str] = None
+
+
+@app.post("/beta")
+def cadastrar_beta(dados: CadastroBeta):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO cadastros_beta (
+            nome,
+            email,
+            perfil,
+            investe_hoje,
+            interesse
+        )
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING id;
+    """, (
+        dados.nome,
+        dados.email,
+        dados.perfil,
+        dados.investe_hoje,
+        dados.interesse
+    ))
+
+    cadastro = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        "status": "sucesso",
+        "mensagem": "Cadastro beta recebido",
+        "id": cadastro["id"]
+    }
+
+
+@app.post("/feedback")
+def enviar_feedback(dados: FeedbackBeta):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO feedback_beta (
+            nome,
+            email,
+            nota,
+            facilidade,
+            utilidade,
+            pagaria,
+            valor_sugerido,
+            comentario
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id;
+    """, (
+        dados.nome,
+        dados.email,
+        dados.nota,
+        dados.facilidade,
+        dados.utilidade,
+        dados.pagaria,
+        dados.valor_sugerido,
+        dados.comentario
+    ))
+
+    feedback = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {
+        "status": "sucesso",
+        "mensagem": "Feedback recebido",
+        "id": feedback["id"]
     }
