@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import { buscarEmpresas } from "@/lib/api";
 
@@ -83,27 +84,44 @@ export default async function EmpresasPage() {
                 {empresas.map((empresa: any) => (
                   <tr key={empresa.ticker} className="border-t border-white/10">
                     <td className="px-4 py-4 font-bold text-emerald-300">
-                      {empresa.ticker}
+                      <Link
+                        href={`/empresa/${empresa.ticker}`}
+                        className="transition hover:text-emerald-100 hover:underline"
+                      >
+                        {empresa.ticker}
+                      </Link>
                     </td>
+
                     <td className="px-4 py-4 text-slate-300">
                       {empresa.setor || "-"}
                     </td>
+
                     <td className="px-4 py-4">
                       <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs">
                         {empresa.classificacao || "-"}
                       </span>
                     </td>
+
                     <td className="px-4 py-4">
                       R$ {formatarNumero(empresa.preco)}
                     </td>
-                    <td className="px-4 py-4">{formatarNumero(empresa.pl)}</td>
-                    <td className="px-4 py-4">{formatarNumero(empresa.pvp)}</td>
+
+                    <td className="px-4 py-4">
+                      {formatarNumero(empresa.pl)}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      {formatarNumero(empresa.pvp)}
+                    </td>
+
                     <td className="px-4 py-4">
                       {formatarPercentual(empresa.roe)}
                     </td>
+
                     <td className="px-4 py-4">
                       {formatarPercentual(empresa.dividend_yield)}
                     </td>
+
                     <td className="px-4 py-4 font-bold text-emerald-300">
                       {empresa.score}
                     </td>
