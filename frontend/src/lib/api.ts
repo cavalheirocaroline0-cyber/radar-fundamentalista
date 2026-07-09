@@ -17,6 +17,29 @@ export type Empresa = {
   data_coleta: string | null;
 };
 
+export type IndicadorMacro = {
+  indicador: string;
+  descricao: string | null;
+  data_referencia: string | null;
+  valor: number | string | null;
+  unidade: string | null;
+  fonte: string | null;
+};
+
+export type AtivoMercado = {
+  ativo: string;
+  data_referencia: string | null;
+  preco_brl: number | string | null;
+  preco_usd: number | string | null;
+  variacao_24h: number | string | null;
+  fonte: string | null;
+};
+
+export type DadosMacro = {
+  indicadores: IndicadorMacro[];
+  ativos: AtivoMercado[];
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export async function buscarEmpresas(): Promise<Empresa[]> {
@@ -43,4 +66,21 @@ export async function buscarRanking(): Promise<Empresa[]> {
 
   const dados = await resposta.json();
   return dados.ranking;
+}
+
+export async function buscarMacro(): Promise<DadosMacro> {
+  const resposta = await fetch(`${API_URL}/macro`, {
+    cache: "no-store",
+  });
+
+  if (!resposta.ok) {
+    throw new Error("Erro ao buscar indicadores macro da API");
+  }
+
+  const dados = await resposta.json();
+
+  return {
+    indicadores: dados.indicadores,
+    ativos: dados.ativos,
+  };
 }

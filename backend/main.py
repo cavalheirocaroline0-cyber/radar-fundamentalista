@@ -76,3 +76,46 @@ def ranking_empresas():
         "total": len(ranking),
         "ranking": ranking
     }
+
+@app.get("/macro")
+def listar_macro():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT ON (indicador)
+            indicador,
+            descricao,
+            data_referencia,
+            valor,
+            unidade,
+            fonte
+        FROM indicadores_macro
+        ORDER BY indicador, data_referencia DESC, criado_em DESC;
+    """)
+
+    indicadores = cur.fetchall()
+
+    cur.execute("""
+        SELECT DISTINCT ON (ativo)
+            ativo,
+            data_referencia,
+            preco_brl,
+            preco_usd,
+            variacao_24h,
+            fonte
+        FROM ativos_mercado
+        ORDER BY ativo, data_referencia DESC, criado_em DESC;
+    """)
+
+    ativos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return {
+        "total_indicadores": len(indicadores),
+        "total_ativos": len(ativos),
+        "indicadores": indicadores,
+        "ativos": ativos
+    }
