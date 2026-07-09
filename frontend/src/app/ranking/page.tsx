@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Header from "@/components/Header";
 import { buscarRanking } from "@/lib/api";
 
@@ -69,11 +70,16 @@ export default async function RankingPage() {
                     </div>
 
                     <div>
-                      <h2 className="text-3xl font-bold text-emerald-300">
+                      <Link
+                        href={`/empresa/${empresa.ticker}`}
+                        className="text-3xl font-bold text-emerald-300 transition hover:text-emerald-100 hover:underline"
+                      >
                         {empresa.ticker}
-                      </h2>
+                      </Link>
+
                       <p className="mt-1 text-slate-300">
-                        {empresa.setor || "Setor a classificar"} · {empresa.classificacao || "-"}
+                        {empresa.setor || "Setor a classificar"} ·{" "}
+                        {empresa.classificacao || "-"}
                       </p>
                     </div>
                   </div>
