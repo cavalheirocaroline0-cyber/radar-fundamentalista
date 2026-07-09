@@ -5,7 +5,7 @@ import { buscarEmpresas } from "@/lib/api";
 export const dynamic = "force-dynamic";
 
 export default async function EmpresasPage() {
-  let empresas = [];
+  let empresas: any[] = [];
   let erro = false;
 
   try {

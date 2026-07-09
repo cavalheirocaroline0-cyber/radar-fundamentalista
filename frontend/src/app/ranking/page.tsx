@@ -23,7 +23,7 @@ function formatarPercentual(valor: number | string | null | undefined) {
 }
 
 export default async function RankingPage() {
-  let ranking = [];
+  let ranking: any[] = [];
   let erro = false;
 
   try {

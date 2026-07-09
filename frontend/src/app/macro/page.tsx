@@ -54,7 +54,7 @@ function formatarData(data: string | null | undefined) {
 }
 
 export default async function MacroPage() {
-  let dados = {
+  let dados: any = {
     indicadores: [],
     ativos: [],
   };
