@@ -31,3 +31,16 @@ export async function buscarEmpresas(): Promise<Empresa[]> {
   const dados = await resposta.json();
   return dados.empresas;
 }
+
+export async function buscarRanking(): Promise<Empresa[]> {
+  const resposta = await fetch(`${API_URL}/ranking`, {
+    cache: "no-store",
+  });
+
+  if (!resposta.ok) {
+    throw new Error("Erro ao buscar ranking da API");
+  }
+
+  const dados = await resposta.json();
+  return dados.ranking;
+}

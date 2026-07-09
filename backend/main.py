@@ -40,3 +40,39 @@ def listar_empresas():
         "total": len(empresas),
         "empresas": empresas
     }
+
+@app.get("/ranking")
+def ranking_empresas():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            ticker,
+            empresa,
+            setor,
+            classificacao,
+            preco,
+            pl,
+            pvp,
+            roe,
+            margem_liquida,
+            dividend_yield,
+            liquidez_2_meses,
+            score,
+            fonte,
+            data_coleta
+        FROM empresas_fundamentalistas
+        ORDER BY score DESC NULLS LAST, roe DESC NULLS LAST
+        LIMIT 20;
+    """)
+
+    ranking = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return {
+        "total": len(ranking),
+        "ranking": ranking
+    }
