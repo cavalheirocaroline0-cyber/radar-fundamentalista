@@ -1,4 +1,4 @@
-# Radar Fundamentalista
+# Dash Diário
 
 ## Sobre o Projeto
 
