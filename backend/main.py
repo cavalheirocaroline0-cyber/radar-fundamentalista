@@ -39,7 +39,7 @@ def listar_empresas():
     cur.execute("""
         SELECT *
         FROM empresas_fundamentalistas
-        LIMIT 50;
+        LIMIT 100;
     """)
 
     empresas = cur.fetchall()

@@ -114,7 +114,7 @@ def coletar_dados_fundamentus():
     if "Liq.2meses" in df.columns:
         df = df.sort_values("Liq.2meses", ascending=False)
 
-    df = df.head(50).copy()
+    df = df.head(100).copy()
 
     registros = []
 
