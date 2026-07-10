@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import BarChartCard from "@/components/BarChartCard";
 import RankingCompacto from "@/components/RankingCompacto";
+import InsightsInterpretacao from "@/components/InsightsInterpretacao";
 import { buscarInsights } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -103,6 +104,8 @@ export default async function InsightsPage() {
           </div>
         ) : (
           <>
+            <InsightsInterpretacao insights={insights} />
+
             <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
                 <p className="text-sm text-slate-400">Score médio</p>
