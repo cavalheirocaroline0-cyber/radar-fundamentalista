@@ -52,7 +52,7 @@ export default function FeedbackForm() {
           <input
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
             placeholder="Seu nome"
           />
         </div>
@@ -63,7 +63,7 @@ export default function FeedbackForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
             placeholder="seuemail@email.com"
           />
         </div>
@@ -76,7 +76,7 @@ export default function FeedbackForm() {
             type="number"
             min={0}
             max={10}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           />
         </div>
 
@@ -85,7 +85,7 @@ export default function FeedbackForm() {
           <select
             value={facilidade}
             onChange={(e) => setFacilidade(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           >
             <option>Muito fácil</option>
             <option>Fácil</option>
@@ -99,7 +99,7 @@ export default function FeedbackForm() {
           <select
             value={utilidade}
             onChange={(e) => setUtilidade(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           >
             <option>Muito útil</option>
             <option>Útil</option>
@@ -113,7 +113,7 @@ export default function FeedbackForm() {
           <select
             value={pagaria}
             onChange={(e) => setPagaria(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           >
             <option>Sim</option>
             <option>Talvez</option>
@@ -127,7 +127,7 @@ export default function FeedbackForm() {
         <input
           value={valorSugerido}
           onChange={(e) => setValorSugerido(e.target.value)}
-          className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+          className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           placeholder="Ex: R$ 9,90, R$ 19,90, R$ 29,90..."
         />
       </div>
@@ -138,7 +138,7 @@ export default function FeedbackForm() {
           value={comentario}
           onChange={(e) => setComentario(e.target.value)}
           rows={5}
-          className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
+          className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
           placeholder="O que você gostou? O que ficou confuso? O que gostaria de ver?"
         />
       </div>
@@ -146,14 +146,14 @@ export default function FeedbackForm() {
       <button
         type="submit"
         disabled={status === "enviando"}
-        className="mt-6 rounded-full bg-emerald-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-emerald-300 disabled:opacity-60"
+        className="mt-6 rounded-full bg-sky-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60"
       >
         {status === "enviando" ? "Enviando..." : "Enviar avaliação"}
       </button>
 
       {status === "sucesso" && (
-        <p className="mt-4 text-sm font-semibold text-emerald-300">
-          Feedback recebido com sucesso. Obrigada por ajudar a evoluir o Radar!
+        <p className="mt-4 text-sm font-semibold text-sky-300">
+          Feedback recebido com sucesso. Obrigada por ajudar a evoluir o Dash!
         </p>
       )}
 

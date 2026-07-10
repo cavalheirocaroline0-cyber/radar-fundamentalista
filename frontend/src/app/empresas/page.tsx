@@ -19,19 +19,19 @@ export default async function EmpresasPage() {
       <Header />
 
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Empresas
         </p>
 
         <h1 className="mt-4 text-4xl font-bold">Empresas monitoradas</h1>
 
         <p className="mt-4 max-w-2xl text-slate-300">
-          Dados reais vindos do Neon por meio da API do Radar Fundamentalista.
+          Dados reais vindos do Neon por meio da API do Dash Diário.
         </p>
 
-        <div className="mt-6 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5">
+        <div className="mt-6 rounded-3xl border border-sky-400/20 bg-sky-400/10 p-5">
           <p className="text-sm text-slate-300">Total carregado da API</p>
-          <p className="mt-2 text-4xl font-bold text-emerald-300">
+          <p className="mt-2 text-4xl font-bold text-sky-300">
             {erro ? "Erro" : empresas.length}
           </p>
         </div>

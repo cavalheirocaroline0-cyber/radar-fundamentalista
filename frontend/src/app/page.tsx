@@ -74,13 +74,13 @@ export default async function Home() {
       <Header />
 
       <section className="relative overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-400/10 blur-3xl" />
-        <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-12">
           <div className="grid gap-10 lg:grid-cols-[1.5fr_0.8fr] lg:items-center">
             <div>
-              <div className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-300">
+              <div className="inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-2 text-sm font-semibold text-sky-300">
                 Dados reais • Neon + FastAPI • Next.js
               </div>
 
@@ -89,7 +89,7 @@ export default async function Home() {
               </h1>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                O Radar Fundamentalista transforma indicadores de empresas,
+                O Dash Diário transforma indicadores de empresas,
                 dados macroeconômicos e rankings em uma plataforma visual para
                 análise de ações brasileiras.
               </p>
@@ -97,34 +97,34 @@ export default async function Home() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/empresas"
-                  className="rounded-full bg-emerald-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-emerald-300"
+                  className="rounded-full bg-sky-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-sky-300"
                 >
                   Explorar empresas
                 </Link>
 
                 <Link
                   href="/ranking"
-                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-emerald-400 hover:text-emerald-300"
+                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
                 >
                   Ver ranking
                 </Link>
 
                 <Link
                   href="/macro"
-                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-emerald-400 hover:text-emerald-300"
+                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
                 >
                   Ver macro
                 </Link>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-400/20 bg-white/[0.04] p-6 shadow-2xl shadow-emerald-950/30">
+            <div className="rounded-[2rem] border border-sky-400/20 bg-white/[0.04] p-6 shadow-2xl shadow-sky-950/30">
               <p className="text-sm text-slate-400">Resumo da plataforma</p>
 
               <div className="mt-5 grid gap-4">
-                <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5">
+                <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-5">
                   <p className="text-sm text-slate-300">Empresas monitoradas</p>
-                  <p className="mt-2 text-6xl font-black text-emerald-300">
+                  <p className="mt-2 text-6xl font-black text-sky-300">
                     {erro ? "-" : empresas.length}
                   </p>
                 </div>
@@ -201,7 +201,7 @@ export default async function Home() {
               <h2 className="mt-2 text-3xl font-bold">Indicadores em destaque</h2>
             </div>
 
-            <Link href="/macro" className="text-sm font-semibold text-emerald-300 hover:underline">
+            <Link href="/macro" className="text-sm font-semibold text-sky-300 hover:underline">
               Ver painel macro →
             </Link>
           </div>
@@ -225,10 +225,10 @@ export default async function Home() {
             {ativosHome.map((item: any) => (
               <div
                 key={item.ativo}
-                className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6"
+                className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-6"
               >
                 <p className="text-sm text-slate-300">{item.ativo}</p>
-                <p className="mt-2 text-4xl font-bold text-emerald-300">
+                <p className="mt-2 text-4xl font-bold text-sky-300">
                   R$ {formatarNumero(item.preco_brl)}
                 </p>
                 <p className="mt-2 text-sm text-slate-400">
@@ -249,7 +249,7 @@ export default async function Home() {
                 <h2 className="mt-2 text-3xl font-bold">Empresas em destaque</h2>
               </div>
 
-              <Link href="/ranking" className="text-sm font-semibold text-emerald-300 hover:underline">
+              <Link href="/ranking" className="text-sm font-semibold text-sky-300 hover:underline">
                 Ver ranking →
               </Link>
             </div>
@@ -268,7 +268,7 @@ export default async function Home() {
                 <tbody>
                   {rankingHome.map((empresa: any) => (
                     <tr key={empresa.ticker} className="border-t border-white/10">
-                      <td className="px-4 py-4 font-bold text-emerald-300">
+                      <td className="px-4 py-4 font-bold text-sky-300">
                         <Link
                           href={`/empresa/${empresa.ticker}`}
                           className="hover:underline"
@@ -290,13 +290,13 @@ export default async function Home() {
             </div>
           </div>
 
-          <aside className="rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 to-cyan-400/5 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
+          <aside className="rounded-3xl border border-sky-400/20 bg-gradient-to-br from-sky-400/15 to-slate-400/5 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
               Próxima evolução
             </p>
 
             <h2 className="mt-3 text-3xl font-bold">
-              IA dentro do Radar
+              IA dentro do Dash
             </h2>
 
             <p className="mt-4 text-sm leading-6 text-slate-300">

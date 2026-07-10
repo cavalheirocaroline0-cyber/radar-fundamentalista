@@ -57,7 +57,7 @@ function formatarDinheiro(valor: number | string | null | undefined) {
   })}`;
 }
 
-export default function RadarTabela({ empresas }: Props) {
+export default function DashTabela({ empresas }: Props) {
   const [busca, setBusca] = useState("");
   const [setor, setSetor] = useState("Todos");
   const [classificacao, setClassificacao] = useState("Todas");
@@ -165,7 +165,7 @@ export default function RadarTabela({ empresas }: Props) {
               value={busca}
               onChange={(evento) => setBusca(evento.target.value)}
               placeholder="Digite PETR4, Itaú, Banco, Energia..."
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -174,7 +174,7 @@ export default function RadarTabela({ empresas }: Props) {
             <select
               value={setor}
               onChange={(evento) => setSetor(evento.target.value)}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-400"
             >
               {setores.map((item) => (
                 <option key={item} value={item}>
@@ -189,7 +189,7 @@ export default function RadarTabela({ empresas }: Props) {
             <select
               value={classificacao}
               onChange={(evento) => setClassificacao(evento.target.value)}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-400"
             >
               {classificacoes.map((item) => (
                 <option key={item} value={item}>
@@ -208,7 +208,7 @@ export default function RadarTabela({ empresas }: Props) {
               onChange={(evento) => setScoreMinimo(evento.target.value)}
               type="number"
               placeholder="Ex: 70"
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -219,7 +219,7 @@ export default function RadarTabela({ empresas }: Props) {
               onChange={(evento) => setDyMinimo(evento.target.value)}
               type="number"
               placeholder="Ex: 5"
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -230,7 +230,7 @@ export default function RadarTabela({ empresas }: Props) {
               onChange={(evento) => setRoeMinimo(evento.target.value)}
               type="number"
               placeholder="Ex: 10"
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -241,7 +241,7 @@ export default function RadarTabela({ empresas }: Props) {
               onChange={(evento) => setPlMaximo(evento.target.value)}
               type="number"
               placeholder="Ex: 12"
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -250,7 +250,7 @@ export default function RadarTabela({ empresas }: Props) {
             <select
               value={ordenacao}
               onChange={(evento) => setOrdenacao(evento.target.value as Ordenacao)}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-400"
             >
               <option value="score">Maior score</option>
               <option value="roe">Maior ROE</option>
@@ -266,7 +266,7 @@ export default function RadarTabela({ empresas }: Props) {
         <div className="mt-5 flex flex-col gap-3 border-t border-white/10 pt-5 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-slate-400">
             Mostrando{" "}
-            <span className="font-bold text-emerald-300">
+            <span className="font-bold text-sky-300">
               {empresasFiltradas.length}
             </span>{" "}
             de {empresas.length} empresas.
@@ -283,7 +283,7 @@ export default function RadarTabela({ empresas }: Props) {
               setPlMaximo("");
               setOrdenacao("score");
             }}
-            className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:border-emerald-400 hover:text-emerald-300"
+            className="rounded-full border border-white/10 px-4 py-2 text-sm text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
           >
             Limpar filtros
           </button>
@@ -312,10 +312,10 @@ export default function RadarTabela({ empresas }: Props) {
           <tbody>
             {empresasFiltradas.map((empresa) => (
               <tr key={empresa.ticker} className="border-t border-white/10">
-                <td className="px-4 py-4 font-bold text-emerald-300">
+                <td className="px-4 py-4 font-bold text-sky-300">
                   <Link
                     href={`/empresa/${empresa.ticker}`}
-                    className="transition hover:text-emerald-100 hover:underline"
+                    className="transition hover:text-sky-100 hover:underline"
                   >
                     {empresa.ticker}
                   </Link>
@@ -347,7 +347,7 @@ export default function RadarTabela({ empresas }: Props) {
                 <td className="px-4 py-4">
                   {formatarDinheiro(empresa.liquidez_2_meses)}
                 </td>
-                <td className="px-4 py-4 font-bold text-emerald-300">
+                <td className="px-4 py-4 font-bold text-sky-300">
                   {empresa.score ?? "-"}
                 </td>
               </tr>

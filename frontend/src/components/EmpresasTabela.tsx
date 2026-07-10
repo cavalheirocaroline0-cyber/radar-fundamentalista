@@ -70,7 +70,7 @@ export default function EmpresasTabela({ empresas }: Props) {
               value={busca}
               onChange={(evento) => setBusca(evento.target.value)}
               placeholder="Digite PETR4, Itaú, Banco, Oportunidade..."
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
           </div>
 
@@ -79,7 +79,7 @@ export default function EmpresasTabela({ empresas }: Props) {
             <select
               value={classificacao}
               onChange={(evento) => setClassificacao(evento.target.value)}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400 lg:w-56"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-400 lg:w-56"
             >
               {classificacoes.map((item) => (
                 <option key={item} value={item}>
@@ -114,10 +114,10 @@ export default function EmpresasTabela({ empresas }: Props) {
           <tbody>
             {empresasFiltradas.map((empresa) => (
               <tr key={empresa.ticker} className="border-t border-white/10">
-                <td className="px-4 py-4 font-bold text-emerald-300">
+                <td className="px-4 py-4 font-bold text-sky-300">
                   <Link
                     href={`/empresa/${empresa.ticker}`}
-                    className="transition hover:text-emerald-100 hover:underline"
+                    className="transition hover:text-sky-100 hover:underline"
                   >
                     {empresa.ticker}
                   </Link>
@@ -149,7 +149,7 @@ export default function EmpresasTabela({ empresas }: Props) {
                   {formatarPercentual(empresa.dividend_yield)}
                 </td>
 
-                <td className="px-4 py-4 font-bold text-emerald-300">
+                <td className="px-4 py-4 font-bold text-sky-300">
                   {empresa.score}
                 </td>
               </tr>

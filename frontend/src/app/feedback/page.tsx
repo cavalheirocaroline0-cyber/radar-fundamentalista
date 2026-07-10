@@ -7,12 +7,12 @@ export default function FeedbackPage() {
       <Header />
 
       <section className="mx-auto max-w-4xl px-6 py-12">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Avaliação
         </p>
 
         <h1 className="mt-4 text-4xl font-bold md:text-5xl">
-          Avalie o Radar Fundamentalista
+          Avalie o Dash Diário
         </h1>
 
         <p className="mt-4 text-lg leading-8 text-slate-300">

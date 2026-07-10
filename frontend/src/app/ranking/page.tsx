@@ -37,7 +37,7 @@ export default async function RankingPage() {
       <Header />
 
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Ranking
         </p>
 
@@ -65,14 +65,14 @@ export default async function RankingPage() {
               >
                 <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                   <div className="flex items-center gap-5">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-xl font-bold text-emerald-300">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-400/10 text-xl font-bold text-sky-300">
                       {index + 1}
                     </div>
 
                     <div>
                       <Link
                         href={`/empresa/${empresa.ticker}`}
-                        className="text-3xl font-bold text-emerald-300 transition hover:text-emerald-100 hover:underline"
+                        className="text-3xl font-bold text-sky-300 transition hover:text-sky-100 hover:underline"
                       >
                         {empresa.ticker}
                       </Link>
@@ -87,7 +87,7 @@ export default async function RankingPage() {
                   <div className="grid gap-4 text-sm sm:grid-cols-4">
                     <div>
                       <p className="text-slate-400">Score</p>
-                      <p className="mt-1 text-2xl font-bold text-emerald-300">
+                      <p className="mt-1 text-2xl font-bold text-sky-300">
                         {empresa.score ?? "-"}
                       </p>
                     </div>

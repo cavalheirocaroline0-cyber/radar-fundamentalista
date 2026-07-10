@@ -45,7 +45,7 @@ function formatarDinheiro(valor: number | string | null | undefined) {
 
 function classificarScore(score: number | null) {
   if (score === null) return "sem score suficiente para uma leitura conclusiva";
-  if (score >= 80) return "com destaque positivo no Radar";
+  if (score >= 80) return "com destaque positivo no Dash";
   if (score >= 65) return "com bons sinais, mas ainda exige comparação";
   if (score >= 50) return "em zona intermediária de análise";
   return "com pontos de atenção relevantes";
@@ -62,7 +62,7 @@ function gerarPontosFortes(empresa: any) {
   const divida = numero(empresa.divida_liquida_ebitda);
 
   if (score !== null && score >= 75) {
-    pontos.push("Score elevado dentro da metodologia do Radar.");
+    pontos.push("Score elevado dentro da metodologia do Dash.");
   }
 
   if (roe !== null && roe >= 15) {
@@ -86,7 +86,7 @@ function gerarPontosFortes(empresa: any) {
   }
 
   if (pontos.length === 0) {
-    pontos.push("A empresa não apresentou destaques fortes automáticos nos critérios atuais do Radar.");
+    pontos.push("A empresa não apresentou destaques fortes automáticos nos critérios atuais do Dash.");
   }
 
   return pontos;
@@ -104,7 +104,7 @@ function gerarPontosAtencao(empresa: any) {
   const score = numero(empresa.score);
 
   if (score !== null && score < 50) {
-    pontos.push("Score baixo dentro da metodologia do Radar.");
+    pontos.push("Score baixo dentro da metodologia do Dash.");
   }
 
   if (pl !== null && pl > 20) {
@@ -197,7 +197,7 @@ function gerarConclusao(empresa: any) {
   const score = numero(empresa.score);
   const classificacaoScore = classificarScore(score);
 
-  return `${empresa.ticker} aparece ${classificacaoScore}. A leitura deve considerar o setor, o momento da empresa, a qualidade dos dados e a comparação com concorrentes. O Radar ajuda a organizar os indicadores, mas a decisão final exige análise complementar.`;
+  return `${empresa.ticker} aparece ${classificacaoScore}. A leitura deve considerar o setor, o momento da empresa, a qualidade dos dados e a comparação com concorrentes. O Dash ajuda a organizar os indicadores, mas a decisão final exige análise complementar.`;
 }
 
 export default async function EmpresaPage({
@@ -232,18 +232,18 @@ export default async function EmpresaPage({
               Empresa não encontrada
             </h1>
             <p className="mt-3 text-slate-300">
-              Confirme se o ticker existe na base do Radar.
+              Confirme se o ticker existe na base do Dash.
             </p>
           </div>
         ) : (
           <>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
               Empresa
             </p>
 
             <div className="mt-4 flex flex-col gap-6 border-b border-white/10 pb-10 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="text-5xl font-bold text-emerald-300">
+                <h1 className="text-5xl font-bold text-sky-300">
                   {empresa.ticker}
                 </h1>
 
@@ -257,9 +257,9 @@ export default async function EmpresaPage({
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-emerald-400/30 bg-emerald-400/10 p-6">
-                <p className="text-sm text-slate-300">Score Radar</p>
-                <p className="mt-2 text-6xl font-bold text-emerald-300">
+              <div className="rounded-3xl border border-sky-400/30 bg-sky-400/10 p-6">
+                <p className="text-sm text-slate-300">Score Dash</p>
+                <p className="mt-2 text-6xl font-bold text-sky-300">
                   {empresa.score ?? "-"}
                 </p>
               </div>
@@ -323,9 +323,9 @@ export default async function EmpresaPage({
               </div>
             </section>
 
-            <section className="mt-10 rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 to-cyan-400/5 p-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
-                Análise Radar
+            <section className="mt-10 rounded-3xl border border-sky-400/20 bg-gradient-to-br from-sky-400/15 to-slate-400/5 p-6">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
+                Análise Dash
               </p>
 
               <h2 className="mt-3 text-3xl font-bold">
@@ -339,14 +339,14 @@ export default async function EmpresaPage({
 
             <section className="mt-6 grid gap-6 lg:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <h3 className="text-2xl font-bold text-emerald-300">
+                <h3 className="text-2xl font-bold text-sky-300">
                   Pontos fortes
                 </h3>
 
                 <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">
                   {pontosFortes.map((ponto) => (
                     <li key={ponto} className="flex gap-3">
-                      <span className="text-emerald-300">✓</span>
+                      <span className="text-sky-300">✓</span>
                       <span>{ponto}</span>
                     </li>
                   ))}
@@ -354,14 +354,14 @@ export default async function EmpresaPage({
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <h3 className="text-2xl font-bold text-amber-300">
+                <h3 className="text-2xl font-bold text-slate-300">
                   Pontos de atenção
                 </h3>
 
                 <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">
                   {pontosAtencao.map((ponto) => (
                     <li key={ponto} className="flex gap-3">
-                      <span className="text-amber-300">!</span>
+                      <span className="text-slate-300">!</span>
                       <span>{ponto}</span>
                     </li>
                   ))}
@@ -393,7 +393,7 @@ export default async function EmpresaPage({
 
               <p className="mt-3 text-sm leading-6 text-slate-400">
                 Esta análise é gerada automaticamente com base nos indicadores
-                disponíveis no Radar Fundamentalista. Ela tem finalidade
+                disponíveis no Dash Diário. Ela tem finalidade
                 educacional e informativa, não representa recomendação de compra,
                 venda ou manutenção de qualquer ativo.
               </p>

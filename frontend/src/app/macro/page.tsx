@@ -72,14 +72,14 @@ export default async function MacroPage() {
       <Header />
 
       <section className="mx-auto max-w-7xl px-6 py-10">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Macro
         </p>
 
         <h1 className="mt-4 text-4xl font-bold">Indicadores macroeconômicos</h1>
 
         <p className="mt-4 max-w-2xl text-slate-300">
-          Juros, inflação, câmbio, criptoativos e metais monitorados pelo Radar Fundamentalista.
+          Juros, inflação, câmbio, criptoativos e metais monitorados pelo Dash Diário.
         </p>
 
         {erro ? (
@@ -159,11 +159,11 @@ export default async function MacroPage() {
                 {dados.ativos.map((item: any) => (
                   <div
                     key={item.ativo}
-                    className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6"
+                    className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-6"
                   >
                     <p className="text-sm text-slate-300">{item.ativo}</p>
 
-                    <p className="mt-2 text-4xl font-bold text-emerald-300">
+                    <p className="mt-2 text-4xl font-bold text-sky-300">
                       R$ {formatarNumero(item.preco_brl)}
                     </p>
 
