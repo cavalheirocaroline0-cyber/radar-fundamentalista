@@ -256,3 +256,129 @@ def enviar_feedback(dados: FeedbackBeta):
         "mensagem": "Feedback recebido",
         "id": feedback["id"]
     }
+
+
+@app.get("/insights")
+def listar_insights():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            COALESCE(classificacao, 'A classificar') AS label,
+            COUNT(*) AS valor
+        FROM empresas_fundamentalistas
+        GROUP BY COALESCE(classificacao, 'A classificar')
+        ORDER BY valor DESC;
+    """)
+    por_classificacao = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            COALESCE(NULLIF(setor, ''), 'A classificar') AS label,
+            COUNT(*) AS valor
+        FROM empresas_fundamentalistas
+        GROUP BY COALESCE(NULLIF(setor, ''), 'A classificar')
+        ORDER BY valor DESC;
+    """)
+    por_setor = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            CASE
+                WHEN score >= 80 THEN '80+ Destaque'
+                WHEN score >= 65 THEN '65 a 79 Forte'
+                WHEN score >= 50 THEN '50 a 64 Neutra'
+                WHEN score >= 35 THEN '35 a 49 Atenção'
+                ELSE 'Abaixo de 35'
+            END AS label,
+            COUNT(*) AS valor
+        FROM empresas_fundamentalistas
+        WHERE score IS NOT NULL
+        GROUP BY
+            CASE
+                WHEN score >= 80 THEN '80+ Destaque'
+                WHEN score >= 65 THEN '65 a 79 Forte'
+                WHEN score >= 50 THEN '50 a 64 Neutra'
+                WHEN score >= 35 THEN '35 a 49 Atenção'
+                ELSE 'Abaixo de 35'
+            END
+        ORDER BY valor DESC;
+    """)
+    distribuicao_score = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            ticker,
+            empresa,
+            setor,
+            classificacao,
+            score,
+            roe,
+            dividend_yield,
+            pl,
+            pvp
+        FROM empresas_fundamentalistas
+        ORDER BY score DESC NULLS LAST
+        LIMIT 10;
+    """)
+    top_score = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            ticker,
+            empresa,
+            setor,
+            classificacao,
+            dividend_yield,
+            score,
+            roe,
+            pl
+        FROM empresas_fundamentalistas
+        WHERE dividend_yield IS NOT NULL
+        ORDER BY dividend_yield DESC
+        LIMIT 10;
+    """)
+    top_dividend_yield = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            ticker,
+            empresa,
+            setor,
+            classificacao,
+            roe,
+            score,
+            dividend_yield,
+            pl
+        FROM empresas_fundamentalistas
+        WHERE roe IS NOT NULL
+        ORDER BY roe DESC
+        LIMIT 10;
+    """)
+    top_roe = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            COUNT(*) AS total_empresas,
+            ROUND(AVG(score)::numeric, 2) AS media_score,
+            ROUND(AVG(roe)::numeric, 2) AS media_roe,
+            ROUND(AVG(dividend_yield)::numeric, 2) AS media_dy,
+            ROUND(AVG(pl)::numeric, 2) AS media_pl,
+            ROUND(AVG(pvp)::numeric, 2) AS media_pvp
+        FROM empresas_fundamentalistas;
+    """)
+    medias = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return {
+        "por_classificacao": por_classificacao,
+        "por_setor": por_setor,
+        "distribuicao_score": distribuicao_score,
+        "top_score": top_score,
+        "top_dividend_yield": top_dividend_yield,
+        "top_roe": top_roe,
+        "medias": medias,
+    }
