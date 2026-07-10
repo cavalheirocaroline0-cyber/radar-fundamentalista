@@ -97,3 +97,49 @@ export async function buscarEmpresaPorTicker(ticker: string): Promise<Empresa> {
   const dados = await resposta.json();
   return dados.empresa;
 }
+
+export type InsightItem = {
+  label: string;
+  valor: number | string;
+};
+
+export type InsightEmpresa = {
+  ticker: string;
+  empresa: string | null;
+  setor: string | null;
+  classificacao: string | null;
+  score?: number | string | null;
+  roe?: number | string | null;
+  dividend_yield?: number | string | null;
+  pl?: number | string | null;
+  pvp?: number | string | null;
+};
+
+export type InsightsDash = {
+  por_classificacao: InsightItem[];
+  por_setor: InsightItem[];
+  distribuicao_score: InsightItem[];
+  top_score: InsightEmpresa[];
+  top_dividend_yield: InsightEmpresa[];
+  top_roe: InsightEmpresa[];
+  medias: {
+    total_empresas: number | string;
+    media_score: number | string | null;
+    media_roe: number | string | null;
+    media_dy: number | string | null;
+    media_pl: number | string | null;
+    media_pvp: number | string | null;
+  };
+};
+
+export async function buscarInsights(): Promise<InsightsDash> {
+  const resposta = await fetch(`${API_URL}/insights`, {
+    cache: "no-store",
+  });
+
+  if (!resposta.ok) {
+    throw new Error("Erro ao buscar insights da API");
+  }
+
+  return resposta.json();
+}

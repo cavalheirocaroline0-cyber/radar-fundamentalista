@@ -6,6 +6,7 @@ const links = [
   { href: "/dash", label: "Dash" },
   { href: "/ranking", label: "Ranking" },
   { href: "/macro", label: "Macro" },
+  { href: "/insights", label: "Insights" },
   { href: "/beta", label: "Beta" },
   { href: "/feedback", label: "Avaliar" },
 ];
