@@ -89,7 +89,7 @@ export default function InstallAppButton() {
     <>
       <button
         onClick={handleInstallClick}
-        className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full bg-sky-400 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-400/30 transition hover:bg-sky-300"
+        className="fixed bottom-24 left-1/2 md:bottom-5 z-50 -translate-x-1/2 rounded-full bg-sky-400 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-400/30 transition hover:bg-sky-300"
       >
         📲 Instalar Dash Diário
       </button>
