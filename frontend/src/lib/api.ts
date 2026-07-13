@@ -143,3 +143,31 @@ export async function buscarInsights(): Promise<InsightsDash> {
 
   return resposta.json();
 }
+
+export type EmpresaDoDia = {
+  ticker: string;
+  empresa: string | null;
+  setor: string | null;
+  preco?: number | string | null;
+  pl?: number | string | null;
+  roe?: number | string | null;
+  margem_liquida?: number | string | null;
+  dividend_yield?: number | string | null;
+  divida_liquida_ebitda?: number | string | null;
+  classificacao: string | null;
+  categoria_dia: string;
+  motivo: string;
+  descricao_motivo: string;
+};
+
+export async function buscarEmpresasDoDia(): Promise<EmpresaDoDia[]> {
+  const resposta = await fetch(`${API_URL}/empresas-do-dia`, {
+    cache: "no-store",
+  });
+
+  if (!resposta.ok) {
+    throw new Error("Erro ao buscar empresas do dia da API");
+  }
+
+  return resposta.json();
+}

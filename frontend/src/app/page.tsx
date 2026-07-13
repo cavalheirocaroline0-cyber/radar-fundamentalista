@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/Header";
-import { buscarEmpresas, buscarMacro, buscarRanking } from "@/lib/api";
+import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -138,6 +138,7 @@ function gerarMotivoEmpresa(item: any) {
 export default async function Home() {
   let empresas: any[] = [];
   let ranking: any[] = [];
+  let empresasDoDiaApi: any[] = [];
   let macro: any = {
     indicadores: [],
     ativos: [],
@@ -146,14 +147,16 @@ export default async function Home() {
   let erro = false;
 
   try {
-    const [empresasApi, rankingApi, macroApi] = await Promise.all([
+    const [empresasApi, rankingApi, macroApi, empresasDoDiaResposta] = await Promise.all([
       buscarEmpresas(),
       buscarRanking(),
       buscarMacro(),
+      buscarEmpresasDoDia(),
     ]);
 
     empresas = Array.isArray(empresasApi) ? empresasApi : [];
     ranking = Array.isArray(rankingApi) ? rankingApi : [];
+    empresasDoDiaApi = Array.isArray(empresasDoDiaResposta) ? empresasDoDiaResposta : [];
     macro = macroApi || { indicadores: [], ativos: [] };
   } catch {
     erro = true;
@@ -165,7 +168,7 @@ export default async function Home() {
   const indicadoresHome = indicadores.slice(0, 3);
   const ativosHome = ativos.slice(0, 3);
   const mercadoCards = [...indicadoresHome, ...ativosHome].slice(0, 6);
-  const empresasDoDia = (ranking.length > 0 ? ranking : empresas).slice(0, 3);
+  const empresasDoDia = (empresasDoDiaApi.length > 0 ? empresasDoDiaApi : ranking.length > 0 ? ranking : empresas).slice(0, 3);
   const rankingHome = ranking.slice(0, 5);
 
   const saudacao = obterSaudacao();
@@ -375,7 +378,7 @@ export default async function Home() {
                           {classificacao}
                         </span>
                         <p className="mt-3 text-sm text-slate-400">
-                          {gerarMotivoEmpresa(item)}
+                          {item.motivo || gerarMotivoEmpresa(item)}
                         </p>
                       </div>
                     </div>

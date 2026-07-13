@@ -382,3 +382,165 @@ def listar_insights():
         "top_roe": top_roe,
         "medias": medias,
     }
+
+
+@app.get("/empresas-do-dia")
+def listar_empresas_do_dia():
+    """
+    Retorna 3 empresas em destaque para a Home do Dash Diário.
+
+    Critérios iniciais:
+    1. Maior Dividend Yield
+    2. Maior ROE
+    3. Maior endividamento como alerta de risco
+    """
+
+    from decimal import Decimal
+
+    def normalizar_linha(linha):
+        dados = dict(linha)
+
+        for chave, valor in dados.items():
+            if isinstance(valor, Decimal):
+                dados[chave] = float(valor)
+
+        return dados
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    empresas = []
+    tickers_usados = set()
+
+    criterios = [
+        {
+            "categoria": "Dividendos",
+            "motivo": "Destaque em Dividend Yield",
+            "descricao": "Empresa com Dividend Yield relevante dentro da base monitorada.",
+            "sql": """
+                SELECT
+                    ticker,
+                    empresa,
+                    setor,
+                    preco,
+                    pl,
+                    roe,
+                    margem_liquida,
+                    dividend_yield,
+                    divida_liquida_ebitda,
+                    classificacao
+                FROM public.empresas_fundamentalistas
+                WHERE dividend_yield IS NOT NULL
+                ORDER BY dividend_yield DESC
+                LIMIT 1;
+            """,
+        },
+        {
+            "categoria": "Rentabilidade",
+            "motivo": "ROE forte na comparação",
+            "descricao": "Empresa com rentabilidade sobre o patrimônio em destaque.",
+            "sql": """
+                SELECT
+                    ticker,
+                    empresa,
+                    setor,
+                    preco,
+                    pl,
+                    roe,
+                    margem_liquida,
+                    dividend_yield,
+                    divida_liquida_ebitda,
+                    classificacao
+                FROM public.empresas_fundamentalistas
+                WHERE roe IS NOT NULL
+                ORDER BY roe DESC
+                LIMIT 1;
+            """,
+        },
+        {
+            "categoria": "Alerta",
+            "motivo": "Atenção ao endividamento",
+            "descricao": "Empresa com maior Dívida Líquida/EBITDA dentro da base monitorada.",
+            "sql": """
+                SELECT
+                    ticker,
+                    empresa,
+                    setor,
+                    preco,
+                    pl,
+                    roe,
+                    margem_liquida,
+                    dividend_yield,
+                    divida_liquida_ebitda,
+                    classificacao
+                FROM public.empresas_fundamentalistas
+                WHERE divida_liquida_ebitda IS NOT NULL
+                ORDER BY divida_liquida_ebitda DESC
+                LIMIT 1;
+            """,
+        },
+    ]
+
+    try:
+        for criterio in criterios:
+            cur.execute(criterio["sql"])
+            linha = cur.fetchone()
+
+            if not linha:
+                continue
+
+            empresa = normalizar_linha(linha)
+            ticker = empresa.get("ticker")
+
+            if ticker in tickers_usados:
+                continue
+
+            empresa["categoria_dia"] = criterio["categoria"]
+            empresa["motivo"] = criterio["motivo"]
+            empresa["descricao_motivo"] = criterio["descricao"]
+
+            empresas.append(empresa)
+            tickers_usados.add(ticker)
+
+        if len(empresas) < 3:
+            cur.execute("""
+                SELECT
+                    ticker,
+                    empresa,
+                    setor,
+                    preco,
+                    pl,
+                    roe,
+                    margem_liquida,
+                    dividend_yield,
+                    divida_liquida_ebitda,
+                    classificacao
+                FROM public.empresas_fundamentalistas
+                ORDER BY roe DESC NULLS LAST, dividend_yield DESC NULLS LAST
+                LIMIT 10;
+            """)
+
+            extras = cur.fetchall()
+
+            for linha in extras:
+                empresa = normalizar_linha(linha)
+                ticker = empresa.get("ticker")
+
+                if ticker in tickers_usados:
+                    continue
+
+                empresa["categoria_dia"] = "Destaque"
+                empresa["motivo"] = "Empresa em destaque no ranking"
+                empresa["descricao_motivo"] = "Empresa selecionada para completar os destaques do dia."
+
+                empresas.append(empresa)
+                tickers_usados.add(ticker)
+
+                if len(empresas) == 3:
+                    break
+
+        return empresas
+
+    finally:
+        cur.close()
+        conn.close()
