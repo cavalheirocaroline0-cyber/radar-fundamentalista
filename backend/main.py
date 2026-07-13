@@ -544,3 +544,259 @@ def listar_empresas_do_dia():
     finally:
         cur.close()
         conn.close()
+
+
+# =========================
+# Usuários, login e favoritos
+# =========================
+
+import hashlib
+import secrets
+from typing import Optional
+
+from fastapi import HTTPException, Header
+from pydantic import BaseModel
+from passlib.context import CryptContext
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+class CadastroUsuario(BaseModel):
+    nome: str
+    email: str
+    senha: str
+
+
+class LoginUsuario(BaseModel):
+    email: str
+    senha: str
+
+
+class FavoritoEmpresa(BaseModel):
+    ticker: str
+
+
+def criar_hash_senha(senha: str) -> str:
+    return pwd_context.hash(senha)
+
+
+def verificar_senha(senha: str, senha_hash: str) -> bool:
+    return pwd_context.verify(senha, senha_hash)
+
+
+def criar_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def criar_hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def validar_email_simples(email: str) -> str:
+    email_limpo = email.strip().lower()
+
+    if "@" not in email_limpo or "." not in email_limpo:
+        raise HTTPException(status_code=400, detail="E-mail inválido")
+
+    return email_limpo
+
+
+def buscar_usuario_por_token(authorization: Optional[str]):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Token não informado")
+
+    partes = authorization.split(" ")
+
+    if len(partes) != 2 or partes[0].lower() != "bearer":
+        raise HTTPException(status_code=401, detail="Formato de token inválido")
+
+    token = partes[1].strip()
+    token_hash = criar_hash_token(token)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT
+                u.id,
+                u.nome,
+                u.email,
+                u.plano,
+                u.criado_em
+            FROM public.usuarios u
+            INNER JOIN public.sessoes_usuario s
+                ON s.usuario_id = u.id
+            WHERE s.token_hash = %s
+            LIMIT 1;
+            """,
+            (token_hash,),
+        )
+
+        usuario = cur.fetchone()
+
+        if not usuario:
+            raise HTTPException(status_code=401, detail="Sessão inválida ou expirada")
+
+        return dict(usuario)
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/usuarios/cadastro")
+def cadastrar_usuario(dados: CadastroUsuario):
+    nome = dados.nome.strip()
+    email = validar_email_simples(dados.email)
+    senha = dados.senha.strip()
+
+    if len(nome) < 2:
+        raise HTTPException(status_code=400, detail="Nome muito curto")
+
+    if len(senha) < 6:
+        raise HTTPException(status_code=400, detail="A senha precisa ter pelo menos 6 caracteres")
+
+    senha_hash = criar_hash_senha(senha)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            INSERT INTO public.usuarios (
+                nome,
+                email,
+                senha_hash
+            )
+            VALUES (%s, %s, %s)
+            RETURNING id, nome, email, plano, criado_em;
+            """,
+            (nome, email, senha_hash),
+        )
+
+        usuario = dict(cur.fetchone())
+
+        cur.execute(
+            """
+            INSERT INTO public.preferencias_usuario (
+                usuario_id,
+                interesses
+            )
+            VALUES (%s, ARRAY[]::TEXT[])
+            ON CONFLICT (usuario_id) DO NOTHING;
+            """,
+            (usuario["id"],),
+        )
+
+        token = criar_token()
+        token_hash = criar_hash_token(token)
+
+        cur.execute(
+            """
+            INSERT INTO public.sessoes_usuario (
+                usuario_id,
+                token_hash
+            )
+            VALUES (%s, %s);
+            """,
+            (usuario["id"], token_hash),
+        )
+
+        conn.commit()
+
+        return {
+            "status": "sucesso",
+            "mensagem": "Usuário cadastrado com sucesso",
+            "token": token,
+            "usuario": usuario,
+        }
+
+    except Exception as erro:
+        conn.rollback()
+
+        if "duplicate key" in str(erro).lower() or "usuarios_email_key" in str(erro).lower():
+            raise HTTPException(status_code=409, detail="Este e-mail já está cadastrado")
+
+        raise erro
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/usuarios/login")
+def login_usuario(dados: LoginUsuario):
+    email = validar_email_simples(dados.email)
+    senha = dados.senha.strip()
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT
+                id,
+                nome,
+                email,
+                senha_hash,
+                plano,
+                criado_em
+            FROM public.usuarios
+            WHERE email = %s
+            LIMIT 1;
+            """,
+            (email,),
+        )
+
+        usuario = cur.fetchone()
+
+        if not usuario:
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
+        usuario = dict(usuario)
+
+        if not verificar_senha(senha, usuario["senha_hash"]):
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
+        token = criar_token()
+        token_hash = criar_hash_token(token)
+
+        cur.execute(
+            """
+            INSERT INTO public.sessoes_usuario (
+                usuario_id,
+                token_hash
+            )
+            VALUES (%s, %s);
+            """,
+            (usuario["id"], token_hash),
+        )
+
+        conn.commit()
+
+        usuario.pop("senha_hash", None)
+
+        return {
+            "status": "sucesso",
+            "mensagem": "Login realizado com sucesso",
+            "token": token,
+            "usuario": usuario,
+        }
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/usuarios/me")
+def obter_usuario_logado(authorization: Optional[str] = Header(default=None)):
+    usuario = buscar_usuario_por_token(authorization)
+
+    return {
+        "usuario": usuario
+    }
