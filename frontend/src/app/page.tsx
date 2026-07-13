@@ -41,6 +41,100 @@ function formatarValorMacro(valor: number | string | null | undefined, unidade?:
   return `${formatarNumero(numero)} ${unidade || ""}`.trim();
 }
 
+function obterValor(item: any, campos: string[]) {
+  for (const campo of campos) {
+    if (item?.[campo] !== undefined && item?.[campo] !== null && item?.[campo] !== "") {
+      return item[campo];
+    }
+  }
+
+  return "-";
+}
+
+function obterSaudacao() {
+  const hora = new Date().getHours();
+
+  if (hora < 12) return "Bom dia";
+  if (hora < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
+function obterDataFormatada() {
+  return new Date().toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+}
+
+function gerarResumoMercado(ativos: any[]) {
+  const ativoComVariacao = ativos.find((item) => {
+    const valor = Number(item?.variacao_24h);
+    return !Number.isNaN(valor);
+  });
+
+  if (!ativoComVariacao) {
+    return "Seu resumo do mercado já está pronto para acompanhar os principais indicadores do dia.";
+  }
+
+  const variacao = Number(ativoComVariacao.variacao_24h);
+  const ativo = ativoComVariacao.ativo || "um dos ativos monitorados";
+
+  if (variacao > 0) {
+    return `O mercado começa com ${ativo} em alta de ${formatarNumero(variacao)}% nas últimas 24h.`;
+  }
+
+  if (variacao < 0) {
+    return `O mercado começa com ${ativo} em queda de ${formatarNumero(variacao)}% nas últimas 24h.`;
+  }
+
+  return `O mercado começa estável em ${ativo}, com variação próxima de zero.`;
+}
+
+function classeClassificacao(classificacao: string) {
+  const valor = classificacao?.toLowerCase() || "";
+
+  if (valor.includes("forte")) {
+    return "border-emerald-400/30 bg-emerald-400/10 text-emerald-300";
+  }
+
+  if (valor.includes("risco")) {
+    return "border-red-400/30 bg-red-400/10 text-red-300";
+  }
+
+  return "border-amber-400/30 bg-amber-400/10 text-amber-300";
+}
+
+function gerarMotivoEmpresa(item: any) {
+  const dividendYield = Number(item?.dividend_yield);
+  const roe = Number(item?.roe);
+  const pl = Number(item?.pl);
+  const margem = Number(item?.margem_liquida);
+  const divida = Number(item?.divida_liquida_ebitda);
+
+  if (!Number.isNaN(dividendYield) && dividendYield >= 8) {
+    return "Dividend Yield em destaque";
+  }
+
+  if (!Number.isNaN(roe) && roe >= 20) {
+    return "ROE forte na comparação";
+  }
+
+  if (!Number.isNaN(pl) && pl > 0 && pl <= 8) {
+    return "P/L abaixo da média da base";
+  }
+
+  if (!Number.isNaN(margem) && margem >= 15) {
+    return "Margem líquida saudável";
+  }
+
+  if (!Number.isNaN(divida) && divida >= 2) {
+    return "Atenção ao endividamento";
+  }
+
+  return "Empresa monitorada pelo Dash";
+}
+
 export default async function Home() {
   let empresas: any[] = [];
   let ranking: any[] = [];
@@ -58,40 +152,51 @@ export default async function Home() {
       buscarMacro(),
     ]);
 
-    empresas = empresasApi;
-    ranking = rankingApi;
-    macro = macroApi;
+    empresas = Array.isArray(empresasApi) ? empresasApi : [];
+    ranking = Array.isArray(rankingApi) ? rankingApi : [];
+    macro = macroApi || { indicadores: [], ativos: [] };
   } catch {
     erro = true;
   }
 
-  const indicadoresHome = macro.indicadores.slice(0, 3);
-  const ativosHome = macro.ativos.slice(0, 3);
+  const indicadores = Array.isArray(macro?.indicadores) ? macro.indicadores : [];
+  const ativos = Array.isArray(macro?.ativos) ? macro.ativos : [];
+
+  const indicadoresHome = indicadores.slice(0, 3);
+  const ativosHome = ativos.slice(0, 3);
+  const mercadoCards = [...indicadoresHome, ...ativosHome].slice(0, 6);
+  const empresasDoDia = (ranking.length > 0 ? ranking : empresas).slice(0, 3);
   const rankingHome = ranking.slice(0, 5);
+
+  const saudacao = obterSaudacao();
+  const dataHoje = obterDataFormatada();
+  const resumoMercado = gerarResumoMercado(ativosHome);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <Header />
 
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-12">
-          <div className="grid gap-10 lg:grid-cols-[1.5fr_0.8fr] lg:items-center">
+          <div className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr] lg:items-center">
             <div>
               <div className="inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-2 text-sm font-semibold text-sky-300">
-                Dados reais • Neon + FastAPI • Next.js
+                ☀️ Todo dia começa com o Dash
               </div>
 
               <h1 className="mt-6 max-w-5xl text-5xl font-black tracking-tight md:text-7xl">
-                Encontre boas empresas com uma visão simples do mercado.
+                {saudacao}. Seu resumo do mercado está pronto.
               </h1>
 
+              <p className="mt-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
+                {dataHoje}
+              </p>
+
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                O Dash Diário transforma indicadores de empresas,
-                dados macroeconômicos e rankings em uma plataforma visual para
-                análise de ações brasileiras.
+                {resumoMercado} Acompanhe mercado, empresas, rankings e insights em uma experiência simples para começar o dia com clareza.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -110,10 +215,10 @@ export default async function Home() {
                 </Link>
 
                 <Link
-                  href="/macro"
+                  href="/dash"
                   className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
                 >
-                  Ver macro
+                  Abrir Dash
                 </Link>
               </div>
             </div>
@@ -140,13 +245,13 @@ export default async function Home() {
                   <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
                     <p className="text-sm text-slate-400">Macro</p>
                     <p className="mt-2 text-3xl font-bold">
-                      {erro ? "-" : macro.indicadores.length + macro.ativos.length}
+                      {erro ? "-" : indicadores.length + ativos.length}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-sm text-slate-500">
-                  Atualização automatizada via coletas e banco Neon.
+                  Dados conectados via Neon, API e frontend Next.js.
                 </p>
               </div>
             </div>
@@ -158,26 +263,26 @@ export default async function Home() {
                 Não foi possível carregar os dados reais
               </h2>
               <p className="mt-3 text-slate-300">
-                Confirme se o backend está rodando em http://localhost:8000.
+                Confirme se o backend está rodando e se a API está disponível.
               </p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-16">
-        <section className="grid gap-4 md:grid-cols-3">
+      <section className="mx-auto max-w-7xl px-6 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-slate-400">Status</p>
-            <h2 className="mt-2 text-2xl font-semibold">MVP ativo</h2>
+            <p className="text-sm text-slate-400">Hábito</p>
+            <h2 className="mt-2 text-2xl font-semibold">Resumo diário</h2>
             <p className="mt-3 text-sm text-slate-300">
-              Dashboard, Neon, coletas, API e frontend já estruturados.
+              Uma entrada rápida para entender o mercado antes de começar o dia.
             </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
             <p className="text-sm text-slate-400">Produto</p>
-            <h2 className="mt-2 text-2xl font-semibold">Site navegável</h2>
+            <h2 className="mt-2 text-2xl font-semibold">Dados simples</h2>
             <p className="mt-3 text-sm text-slate-300">
               Empresas, ranking, macro e páginas individuais por ticker.
             </p>
@@ -190,15 +295,15 @@ export default async function Home() {
               Explicações simples sobre empresas, riscos e indicadores.
             </p>
           </div>
-        </section>
+        </div>
 
-        <section className="mt-12">
+        <section className="mt-14">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
-                Mercado
+                📈 Mercado hoje
               </p>
-              <h2 className="mt-2 text-3xl font-bold">Indicadores em destaque</h2>
+              <h2 className="mt-2 text-3xl font-bold">O pulso do dia em poucos segundos</h2>
             </div>
 
             <Link href="/macro" className="text-sm font-semibold text-sky-300 hover:underline">
@@ -207,41 +312,120 @@ export default async function Home() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {indicadoresHome.map((item: any) => (
-              <div
-                key={item.indicador}
-                className="rounded-3xl border border-white/10 bg-slate-900 p-6"
-              >
-                <p className="text-sm text-slate-400">{item.indicador}</p>
-                <p className="mt-2 text-4xl font-bold">
-                  {formatarValorMacro(item.valor, item.unidade)}
-                </p>
-                <p className="mt-2 text-sm text-slate-400">
-                  {item.descricao || "Indicador macroeconômico"}
-                </p>
-              </div>
-            ))}
+            {mercadoCards.map((item: any, index: number) => {
+              const titulo = item.indicador || item.ativo || `Indicador ${index + 1}`;
+              const valor = item.indicador
+                ? formatarValorMacro(item.valor, item.unidade)
+                : `R$ ${formatarNumero(item.preco_brl)}`;
+              const descricao = item.indicador
+                ? item.descricao || "Indicador macroeconômico"
+                : `Variação 24h: ${formatarNumero(item.variacao_24h)}%`;
 
-            {ativosHome.map((item: any) => (
-              <div
-                key={item.ativo}
-                className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-6"
-              >
-                <p className="text-sm text-slate-300">{item.ativo}</p>
-                <p className="mt-2 text-4xl font-bold text-sky-300">
-                  R$ {formatarNumero(item.preco_brl)}
-                </p>
-                <p className="mt-2 text-sm text-slate-400">
-                  Variação 24h: {formatarNumero(item.variacao_24h)}%
-                </p>
-              </div>
-            ))}
+              return (
+                <div
+                  key={`${titulo}-${index}`}
+                  className="rounded-3xl border border-white/10 bg-slate-900 p-6"
+                >
+                  <p className="text-sm text-slate-400">{titulo}</p>
+                  <p className="mt-2 text-4xl font-bold text-white">{valor}</p>
+                  <p className="mt-2 text-sm text-slate-400">{descricao}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
-        <section className="mt-12 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <section className="mt-14 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div className="flex items-end justify-between">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
+                  🔥 Empresas do dia
+                </p>
+                <h2 className="mt-2 text-3xl font-bold">3 empresas para observar</h2>
+              </div>
+
+              <Link href="/empresas" className="text-sm font-semibold text-sky-300 hover:underline">
+                Ver empresas →
+              </Link>
+            </div>
+
+            <div className="mt-6 grid gap-4">
+              {empresasDoDia.map((item: any, index: number) => {
+                const ticker = obterValor(item, ["ticker", "Ticker"]);
+                const empresa = obterValor(item, ["empresa", "Empresa", "nome"]);
+                const setor = obterValor(item, ["setor", "Setor"]);
+                const classificacao = String(obterValor(item, ["classificacao", "Classificação"]));
+
+                return (
+                  <Link
+                    key={`${ticker}-${index}`}
+                    href={`/empresa/${ticker}`}
+                    className="rounded-3xl border border-white/10 bg-slate-950 p-5 transition hover:border-sky-400/40 hover:bg-sky-400/5"
+                  >
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm text-slate-400">{setor}</p>
+                        <h3 className="mt-1 text-2xl font-bold">{ticker}</h3>
+                        <p className="mt-1 text-slate-300">{empresa}</p>
+                      </div>
+
+                      <div className="md:text-right">
+                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${classeClassificacao(classificacao)}`}>
+                          {classificacao}
+                        </span>
+                        <p className="mt-3 text-sm text-slate-400">
+                          {gerarMotivoEmpresa(item)}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
+              ⭐ Minha watchlist
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Acompanhe suas favoritas</h2>
+            <p className="mt-4 text-slate-300">
+              Em breve, você poderá montar sua watchlist e receber um resumo diário das empresas que mais acompanha.
+            </p>
+
+            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/70 p-5">
+              <p className="text-sm text-slate-400">Sugestão de uso</p>
+              <p className="mt-2 text-lg font-semibold">
+                Salve o Dash como app no celular e abra todos os dias pela manhã.
+              </p>
+            </div>
+
+            <Link
+              href="/beta"
+              className="mt-6 inline-flex rounded-full bg-sky-400 px-5 py-3 font-bold text-slate-950 transition hover:bg-sky-300"
+            >
+              Entrar na lista beta
+            </Link>
+          </div>
+        </section>
+
+        <section className="mt-14 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
+              🧠 Insight do dia
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Dados bons precisam ser simples</h2>
+            <p className="mt-4 text-slate-300">
+              Empresas com boa rentabilidade, margem saudável e endividamento controlado tendem a chamar mais atenção em análises fundamentalistas.
+            </p>
+            <p className="mt-4 text-sm text-slate-500">
+              O Dash Diário organiza esses sinais para facilitar a leitura, sem prometer resultado e sem recomendar compra ou venda.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-slate-900 p-6">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
                   Ranking
@@ -259,59 +443,78 @@ export default async function Home() {
                 <thead className="bg-white/10 text-slate-300">
                   <tr>
                     <th className="px-4 py-3">Ticker</th>
-                    <th className="px-4 py-3">Setor</th>
-                    <th className="px-4 py-3">Score</th>
+                    <th className="px-4 py-3">Empresa</th>
                     <th className="px-4 py-3">Classificação</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {rankingHome.map((empresa: any) => (
-                    <tr key={empresa.ticker} className="border-t border-white/10">
-                      <td className="px-4 py-4 font-bold text-sky-300">
-                        <Link
-                          href={`/empresa/${empresa.ticker}`}
-                          className="hover:underline"
-                        >
-                          {empresa.ticker}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 text-slate-300">
-                        {empresa.setor || "-"}
-                      </td>
-                      <td className="px-4 py-4">{empresa.score ?? "-"}</td>
-                      <td className="px-4 py-4 text-slate-300">
-                        {empresa.classificacao || "-"}
-                      </td>
-                    </tr>
-                  ))}
+                  {rankingHome.map((item: any, index: number) => {
+                    const ticker = obterValor(item, ["ticker", "Ticker"]);
+                    const empresa = obterValor(item, ["empresa", "Empresa", "nome"]);
+                    const classificacao = String(obterValor(item, ["classificacao", "Classificação"]));
+
+                    return (
+                      <tr key={`${ticker}-${index}`} className="border-t border-white/10">
+                        <td className="px-4 py-3 font-bold text-sky-300">{ticker}</td>
+                        <td className="px-4 py-3 text-slate-300">{empresa}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${classeClassificacao(classificacao)}`}>
+                            {classificacao}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
+        </section>
 
-          <aside className="rounded-3xl border border-sky-400/20 bg-gradient-to-br from-sky-400/15 to-slate-400/5 p-6">
+        <section className="mt-14 grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300">
-              Próxima evolução
+              🤖 IA do Dash
             </p>
-
-            <h2 className="mt-3 text-3xl font-bold">
-              IA dentro do Dash
-            </h2>
-
-            <p className="mt-4 text-sm leading-6 text-slate-300">
-              O próximo salto pode ser um botão de análise inteligente em cada
-              empresa, explicando pontos fortes, riscos, valuation e dividendos
-              em linguagem simples.
-            </p>
-
-            <div className="mt-6 space-y-3 text-sm text-slate-300">
-              <p>✓ Análise por ticker</p>
-              <p>✓ Comparação entre empresas</p>
-              <p>✓ Alertas personalizados</p>
-              <p>✓ Watchlist no futuro app</p>
+            <h2 className="mt-2 text-3xl font-bold">Pergunte em linguagem simples</h2>
+            <div className="mt-5 grid gap-3">
+              <p className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
+                “Quais empresas parecem mais fortes hoje?”
+              </p>
+              <p className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
+                “Compare PETR4 e VALE3.”
+              </p>
+              <p className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
+                “Explique o mercado de hoje de forma simples.”
+              </p>
             </div>
-          </aside>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
+              🔔 Volte amanhã
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Seu resumo será atualizado</h2>
+            <p className="mt-4 text-slate-300">
+              A proposta do Dash Diário é criar uma rotina: abrir, entender o cenário, ver os destaques e seguir o dia com mais clareza.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/feedback"
+                className="rounded-full bg-sky-400 px-5 py-3 font-bold text-slate-950 transition hover:bg-sky-300"
+              >
+                Avaliar o Dash
+              </Link>
+
+              <Link
+                href="/beta"
+                className="rounded-full border border-white/20 px-5 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
+              >
+                Participar da beta
+              </Link>
+            </div>
+          </div>
         </section>
       </section>
     </main>
