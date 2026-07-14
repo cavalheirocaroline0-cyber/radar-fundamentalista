@@ -948,3 +948,187 @@ def redefinir_senha(dados: RedefinirSenha):
     finally:
         cur.close()
         conn.close()
+
+
+# =========================
+# Favoritos / Watchlist
+# =========================
+
+from typing import Optional
+from fastapi import Header
+
+
+class FavoritoPayload(BaseModel):
+    ticker: str
+
+
+def obter_usuario_logado_por_header(authorization: Optional[str]):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Token não informado")
+
+    if not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Formato de token inválido")
+
+    token = authorization.split(" ", 1)[1].strip()
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Token vazio")
+
+    token_hash = criar_hash_token(token)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT 
+                u.id,
+                u.nome,
+                u.email,
+                u.plano
+            FROM public.sessoes_usuario s
+            JOIN public.usuarios u ON u.id = s.usuario_id
+            WHERE s.token_hash = %s
+              AND (s.expira_em IS NULL OR s.expira_em > CURRENT_TIMESTAMP)
+            LIMIT 1;
+            """,
+            (token_hash,),
+        )
+
+        usuario = cur.fetchone()
+
+        if not usuario:
+            raise HTTPException(status_code=401, detail="Sessão inválida ou expirada")
+
+        return dict(usuario)
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/favoritos")
+def listar_favoritos(authorization: Optional[str] = Header(default=None)):
+    usuario = obter_usuario_logado_por_header(authorization)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT 
+                f.ticker,
+                e.nome AS empresa,
+                e.setor,
+                e.classificacao
+            FROM public.favoritos_empresas f
+            LEFT JOIN public.empresas_fundamentalistas e
+                ON UPPER(e.ticker) = UPPER(f.ticker)
+            WHERE f.usuario_id = %s
+            ORDER BY f.id DESC;
+            """,
+            (usuario["id"],),
+        )
+
+        favoritos = [dict(row) for row in cur.fetchall()]
+
+        return {
+            "usuario_id": usuario["id"],
+            "favoritos": favoritos
+        }
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/favoritos")
+def adicionar_favorito(
+    dados: FavoritoPayload,
+    authorization: Optional[str] = Header(default=None)
+):
+    usuario = obter_usuario_logado_por_header(authorization)
+
+    ticker = dados.ticker.strip().upper()
+
+    if not ticker:
+        raise HTTPException(status_code=400, detail="Informe um ticker")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT ticker
+            FROM public.empresas_fundamentalistas
+            WHERE UPPER(ticker) = UPPER(%s)
+            LIMIT 1;
+            """,
+            (ticker,),
+        )
+
+        empresa = cur.fetchone()
+
+        if not empresa:
+            raise HTTPException(status_code=404, detail="Empresa não encontrada. Use o ticker, exemplo: PETR4, VALE3, ITUB4.")
+
+        empresa = dict(empresa)
+        ticker_correto = empresa["ticker"].upper()
+
+        cur.execute(
+            """
+            INSERT INTO public.favoritos_empresas (usuario_id, ticker)
+            VALUES (%s, %s)
+            ON CONFLICT DO NOTHING;
+            """,
+            (usuario["id"], ticker_correto),
+        )
+
+        conn.commit()
+
+        return {
+            "status": "sucesso",
+            "mensagem": f"{ticker_correto} adicionada à sua watchlist.",
+            "ticker": ticker_correto
+        }
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.delete("/favoritos/{ticker}")
+def remover_favorito(
+    ticker: str,
+    authorization: Optional[str] = Header(default=None)
+):
+    usuario = obter_usuario_logado_por_header(authorization)
+
+    ticker_normalizado = ticker.strip().upper()
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            DELETE FROM public.favoritos_empresas
+            WHERE usuario_id = %s
+              AND UPPER(ticker) = UPPER(%s);
+            """,
+            (usuario["id"], ticker_normalizado),
+        )
+
+        conn.commit()
+
+        return {
+            "status": "sucesso",
+            "mensagem": f"{ticker_normalizado} removida da watchlist."
+        }
+
+    finally:
+        cur.close()
+        conn.close()
