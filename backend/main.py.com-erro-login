@@ -686,10 +686,10 @@ def cadastrar_usuario(dados: CadastroUsuario):
                 usuario_id,
                 interesses
             )
-            VALUES (%s, ARRAY[]::TEXT[])
+            VALUES (%s, %s)
             ON CONFLICT (usuario_id) DO NOTHING;
             """,
-            (usuario["id"],),
+            (usuario["id"], []),
         )
 
         token = criar_token()
@@ -802,25 +802,16 @@ def obter_usuario_logado(authorization: Optional[str] = Header(default=None)):
     }
 
 
-# =========================
-# Recuperação de senha
-# =========================
+@app.post("/favoritos")
+def adicionar_favorito(
+    dados: FavoritoEmpresa,
+    authorization: Optional[str] = Header(default=None)
+):
+    usuario = buscar_usuario_por_token(authorization)
+    ticker = dados.ticker.strip().upper()
 
-from datetime import datetime, timedelta
-
-
-class EsqueciSenha(BaseModel):
-    email: str
-
-
-class RedefinirSenha(BaseModel):
-    token: str
-    nova_senha: str
-
-
-@app.post("/usuarios/esqueci-senha")
-def esqueci_senha(dados: EsqueciSenha):
-    email = validar_email_simples(dados.email)
+    if not ticker:
+        raise HTTPException(status_code=400, detail="Ticker não informado")
 
     conn = get_connection()
     cur = conn.cursor()
@@ -828,52 +819,27 @@ def esqueci_senha(dados: EsqueciSenha):
     try:
         cur.execute(
             """
-            SELECT id, nome, email
-            FROM public.usuarios
-            WHERE email = %s
-            LIMIT 1;
-            """,
-            (email,),
-        )
-
-        usuario = cur.fetchone()
-
-        # Resposta genérica por segurança.
-        # Assim ninguém descobre se um e-mail existe ou não.
-        if not usuario:
-            return {
-                "status": "sucesso",
-                "mensagem": "Se o e-mail estiver cadastrado, enviaremos instruções de recuperação."
-            }
-
-        usuario = dict(usuario)
-
-        token = criar_token()
-        token_hash = criar_hash_token(token)
-        expira_em = datetime.utcnow() + timedelta(hours=1)
-
-        cur.execute(
-            """
-            INSERT INTO public.recuperacao_senha (
+            INSERT INTO public.favoritos_empresas (
                 usuario_id,
-                token_hash,
-                expira_em
+                ticker
             )
-            VALUES (%s, %s, %s);
+            VALUES (%s, %s)
+            ON CONFLICT (usuario_id, ticker) DO NOTHING
+            RETURNING id, usuario_id, ticker, criado_em;
             """,
-            (usuario["id"], token_hash, expira_em),
+            (usuario["id"], ticker),
         )
 
+        favorito = cur.fetchone()
         conn.commit()
-
-        # MVP: por enquanto devolvemos o link na resposta para teste.
-        # Em produção, esse link deve ser enviado por e-mail.
-        link_redefinicao = f"http://localhost:3000/redefinir-senha?token={token}"
 
         return {
             "status": "sucesso",
-            "mensagem": "Link de recuperação gerado com sucesso.",
-            "link_redefinicao": link_redefinicao
+            "mensagem": "Empresa adicionada aos favoritos",
+            "favorito": dict(favorito) if favorito else {
+                "usuario_id": usuario["id"],
+                "ticker": ticker
+            },
         }
 
     finally:
@@ -881,16 +847,9 @@ def esqueci_senha(dados: EsqueciSenha):
         conn.close()
 
 
-@app.post("/usuarios/redefinir-senha")
-def redefinir_senha(dados: RedefinirSenha):
-    token = dados.token.strip()
-    nova_senha = dados.nova_senha.strip()
-
-    if len(nova_senha) < 6:
-        raise HTTPException(status_code=400, detail="A nova senha precisa ter pelo menos 6 caracteres")
-
-    token_hash = criar_hash_token(token)
-    nova_senha_hash = criar_hash_senha(nova_senha)
+@app.get("/favoritos")
+def listar_favoritos(authorization: Optional[str] = Header(default=None)):
+    usuario = buscar_usuario_por_token(authorization)
 
     conn = get_connection()
     cur = conn.cursor()
@@ -898,51 +857,64 @@ def redefinir_senha(dados: RedefinirSenha):
     try:
         cur.execute(
             """
-            SELECT id, usuario_id, usado, expira_em
-            FROM public.recuperacao_senha
-            WHERE token_hash = %s
-            LIMIT 1;
+            SELECT
+                f.ticker,
+                e.empresa,
+                e.setor,
+                e.preco,
+                e.pl,
+                e.roe,
+                e.dividend_yield,
+                e.classificacao,
+                f.criado_em
+            FROM public.favoritos_empresas f
+            LEFT JOIN public.empresas_fundamentalistas e
+                ON e.ticker = f.ticker
+            WHERE f.usuario_id = %s
+            ORDER BY f.criado_em DESC;
             """,
-            (token_hash,),
+            (usuario["id"],),
         )
 
-        recuperacao = cur.fetchone()
+        favoritos = cur.fetchall()
 
-        if not recuperacao:
-            raise HTTPException(status_code=400, detail="Token inválido")
+        return {
+            "usuario": usuario,
+            "favoritos": favoritos,
+        }
 
-        recuperacao = dict(recuperacao)
+    finally:
+        cur.close()
+        conn.close()
 
-        if recuperacao["usado"]:
-            raise HTTPException(status_code=400, detail="Token já utilizado")
 
-        if recuperacao["expira_em"] < datetime.utcnow():
-            raise HTTPException(status_code=400, detail="Token expirado")
+@app.delete("/favoritos/{ticker}")
+def remover_favorito(
+    ticker: str,
+    authorization: Optional[str] = Header(default=None)
+):
+    usuario = buscar_usuario_por_token(authorization)
+    ticker_normalizado = ticker.strip().upper()
 
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
         cur.execute(
             """
-            UPDATE public.usuarios
-            SET senha_hash = %s,
-                atualizado_em = CURRENT_TIMESTAMP
-            WHERE id = %s;
+            DELETE FROM public.favoritos_empresas
+            WHERE usuario_id = %s
+              AND ticker = %s;
             """,
-            (nova_senha_hash, recuperacao["usuario_id"]),
-        )
-
-        cur.execute(
-            """
-            UPDATE public.recuperacao_senha
-            SET usado = TRUE
-            WHERE id = %s;
-            """,
-            (recuperacao["id"],),
+            (usuario["id"], ticker_normalizado),
         )
 
         conn.commit()
 
         return {
             "status": "sucesso",
-            "mensagem": "Senha redefinida com sucesso"
+            "mensagem": "Empresa removida dos favoritos",
+            "ticker": ticker_normalizado,
         }
 
     finally:
@@ -951,29 +923,71 @@ def redefinir_senha(dados: RedefinirSenha):
 
 
 # =========================
-# Favoritos / Watchlist
+# Usuários, login e favoritos
 # =========================
 
+import hashlib
+import secrets
 from typing import Optional
-from fastapi import Header
+
+from fastapi import HTTPException, Header
+from pydantic import BaseModel
+from passlib.context import CryptContext
 
 
-class FavoritoPayload(BaseModel):
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+class CadastroUsuario(BaseModel):
+    nome: str
+    email: str
+    senha: str
+
+
+class LoginUsuario(BaseModel):
+    email: str
+    senha: str
+
+
+class FavoritoEmpresa(BaseModel):
     ticker: str
 
 
-def obter_usuario_logado_por_header(authorization: Optional[str]):
+def criar_hash_senha(senha: str) -> str:
+    return pwd_context.hash(senha)
+
+
+def verificar_senha(senha: str, senha_hash: str) -> bool:
+    return pwd_context.verify(senha, senha_hash)
+
+
+def criar_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def criar_hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def validar_email_simples(email: str) -> str:
+    email_limpo = email.strip().lower()
+
+    if "@" not in email_limpo or "." not in email_limpo:
+        raise HTTPException(status_code=400, detail="E-mail inválido")
+
+    return email_limpo
+
+
+def buscar_usuario_por_token(authorization: Optional[str]):
     if not authorization:
         raise HTTPException(status_code=401, detail="Token não informado")
 
-    if not authorization.lower().startswith("bearer "):
+    partes = authorization.split(" ")
+
+    if len(partes) != 2 or partes[0].lower() != "bearer":
         raise HTTPException(status_code=401, detail="Formato de token inválido")
 
-    token = authorization.split(" ", 1)[1].strip()
-
-    if not token:
-        raise HTTPException(status_code=401, detail="Token vazio")
-
+    token = partes[1].strip()
     token_hash = criar_hash_token(token)
 
     conn = get_connection()
@@ -982,15 +996,16 @@ def obter_usuario_logado_por_header(authorization: Optional[str]):
     try:
         cur.execute(
             """
-            SELECT 
+            SELECT
                 u.id,
                 u.nome,
                 u.email,
-                u.plano
-            FROM public.sessoes_usuario s
-            JOIN public.usuarios u ON u.id = s.usuario_id
+                u.plano,
+                u.criado_em
+            FROM public.usuarios u
+            INNER JOIN public.sessoes_usuario s
+                ON s.usuario_id = u.id
             WHERE s.token_hash = %s
-              AND (s.expira_em IS NULL OR s.expira_em > CURRENT_TIMESTAMP)
             LIMIT 1;
             """,
             (token_hash,),
@@ -1008,9 +1023,19 @@ def obter_usuario_logado_por_header(authorization: Optional[str]):
         conn.close()
 
 
-@app.get("/favoritos")
-def listar_favoritos(authorization: Optional[str] = Header(default=None)):
-    usuario = obter_usuario_logado_por_header(authorization)
+@app.post("/usuarios/cadastro")
+def cadastrar_usuario(dados: CadastroUsuario):
+    nome = dados.nome.strip()
+    email = validar_email_simples(dados.email)
+    senha = dados.senha.strip()
+
+    if len(nome) < 2:
+        raise HTTPException(status_code=400, detail="Nome muito curto")
+
+    if len(senha) < 6:
+        raise HTTPException(status_code=400, detail="A senha precisa ter pelo menos 6 caracteres")
+
+    senha_hash = criar_hash_senha(senha)
 
     conn = get_connection()
     cur = conn.cursor()
@@ -1018,30 +1043,125 @@ def listar_favoritos(authorization: Optional[str] = Header(default=None)):
     try:
         cur.execute(
             """
-            SELECT 
-                f.ticker,
-                e.empresa AS empresa,
-                e.setor,
-                e.classificacao,
-		e.preco,
-		e.pl,
-		e.pvp,
-		e.roe,
-		e.dividend_yield
-            FROM public.favoritos_empresas f
-            LEFT JOIN public.empresas_fundamentalistas e
-                ON UPPER(e.ticker) = UPPER(f.ticker)
-            WHERE f.usuario_id = %s
-            ORDER BY f.id DESC;
+            INSERT INTO public.usuarios (
+                nome,
+                email,
+                senha_hash
+            )
+            VALUES (%s, %s, %s)
+            RETURNING id, nome, email, plano, criado_em;
             """,
-            (usuario["id"],),
+            (nome, email, senha_hash),
         )
 
-        favoritos = [dict(row) for row in cur.fetchall()]
+        usuario = dict(cur.fetchone())
+
+        cur.execute(
+            """
+            INSERT INTO public.preferencias_usuario (
+                usuario_id,
+                interesses
+            )
+            VALUES (%s, %s)
+            ON CONFLICT (usuario_id) DO NOTHING;
+            """,
+            (usuario["id"], []),
+        )
+
+        token = criar_token()
+        token_hash = criar_hash_token(token)
+
+        cur.execute(
+            """
+            INSERT INTO public.sessoes_usuario (
+                usuario_id,
+                token_hash
+            )
+            VALUES (%s, %s);
+            """,
+            (usuario["id"], token_hash),
+        )
+
+        conn.commit()
 
         return {
-            "usuario_id": usuario["id"],
-            "favoritos": favoritos
+            "status": "sucesso",
+            "mensagem": "Usuário cadastrado com sucesso",
+            "token": token,
+            "usuario": usuario,
+        }
+
+    except Exception as erro:
+        conn.rollback()
+
+        if "duplicate key" in str(erro).lower() or "usuarios_email_key" in str(erro).lower():
+            raise HTTPException(status_code=409, detail="Este e-mail já está cadastrado")
+
+        raise erro
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/usuarios/login")
+def login_usuario(dados: LoginUsuario):
+    email = validar_email_simples(dados.email)
+    senha = dados.senha.strip()
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT
+                id,
+                nome,
+                email,
+                senha_hash,
+                plano,
+                criado_em
+            FROM public.usuarios
+            WHERE email = %s
+            LIMIT 1;
+            """,
+            (email,),
+        )
+
+        usuario = cur.fetchone()
+
+        if not usuario:
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
+        usuario = dict(usuario)
+
+        if not verificar_senha(senha, usuario["senha_hash"]):
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
+        token = criar_token()
+        token_hash = criar_hash_token(token)
+
+        cur.execute(
+            """
+            INSERT INTO public.sessoes_usuario (
+                usuario_id,
+                token_hash
+            )
+            VALUES (%s, %s);
+            """,
+            (usuario["id"], token_hash),
+        )
+
+        conn.commit()
+
+        usuario.pop("senha_hash", None)
+
+        return {
+            "status": "sucesso",
+            "mensagem": "Login realizado com sucesso",
+            "token": token,
+            "usuario": usuario,
         }
 
     finally:
@@ -1049,17 +1169,25 @@ def listar_favoritos(authorization: Optional[str] = Header(default=None)):
         conn.close()
 
 
+@app.get("/usuarios/me")
+def obter_usuario_logado(authorization: Optional[str] = Header(default=None)):
+    usuario = buscar_usuario_por_token(authorization)
+
+    return {
+        "usuario": usuario
+    }
+
+
 @app.post("/favoritos")
 def adicionar_favorito(
-    dados: FavoritoPayload,
+    dados: FavoritoEmpresa,
     authorization: Optional[str] = Header(default=None)
 ):
-    usuario = obter_usuario_logado_por_header(authorization)
-
+    usuario = buscar_usuario_por_token(authorization)
     ticker = dados.ticker.strip().upper()
 
     if not ticker:
-        raise HTTPException(status_code=400, detail="Informe um ticker")
+        raise HTTPException(status_code=400, detail="Ticker não informado")
 
     conn = get_connection()
     cur = conn.cursor()
@@ -1067,37 +1195,68 @@ def adicionar_favorito(
     try:
         cur.execute(
             """
-            SELECT ticker
-            FROM public.empresas_fundamentalistas
-            WHERE UPPER(ticker) = UPPER(%s)
-            LIMIT 1;
-            """,
-            (ticker,),
-        )
-
-        empresa = cur.fetchone()
-
-        if not empresa:
-            raise HTTPException(status_code=404, detail="Empresa não encontrada. Use o ticker, exemplo: PETR4, VALE3, ITUB4.")
-
-        empresa = dict(empresa)
-        ticker_correto = empresa["ticker"].upper()
-
-        cur.execute(
-            """
-            INSERT INTO public.favoritos_empresas (usuario_id, ticker)
+            INSERT INTO public.favoritos_empresas (
+                usuario_id,
+                ticker
+            )
             VALUES (%s, %s)
-            ON CONFLICT DO NOTHING;
+            ON CONFLICT (usuario_id, ticker) DO NOTHING
+            RETURNING id, usuario_id, ticker, criado_em;
             """,
-            (usuario["id"], ticker_correto),
+            (usuario["id"], ticker),
         )
 
+        favorito = cur.fetchone()
         conn.commit()
 
         return {
             "status": "sucesso",
-            "mensagem": f"{ticker_correto} adicionada à sua watchlist.",
-            "ticker": ticker_correto
+            "mensagem": "Empresa adicionada aos favoritos",
+            "favorito": dict(favorito) if favorito else {
+                "usuario_id": usuario["id"],
+                "ticker": ticker
+            },
+        }
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/favoritos")
+def listar_favoritos(authorization: Optional[str] = Header(default=None)):
+    usuario = buscar_usuario_por_token(authorization)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT
+                f.ticker,
+                e.empresa,
+                e.setor,
+                e.preco,
+                e.pl,
+                e.roe,
+                e.dividend_yield,
+                e.classificacao,
+                f.criado_em
+            FROM public.favoritos_empresas f
+            LEFT JOIN public.empresas_fundamentalistas e
+                ON e.ticker = f.ticker
+            WHERE f.usuario_id = %s
+            ORDER BY f.criado_em DESC;
+            """,
+            (usuario["id"],),
+        )
+
+        favoritos = cur.fetchall()
+
+        return {
+            "usuario": usuario,
+            "favoritos": favoritos,
         }
 
     finally:
@@ -1110,8 +1269,7 @@ def remover_favorito(
     ticker: str,
     authorization: Optional[str] = Header(default=None)
 ):
-    usuario = obter_usuario_logado_por_header(authorization)
-
+    usuario = buscar_usuario_por_token(authorization)
     ticker_normalizado = ticker.strip().upper()
 
     conn = get_connection()
@@ -1122,7 +1280,7 @@ def remover_favorito(
             """
             DELETE FROM public.favoritos_empresas
             WHERE usuario_id = %s
-              AND UPPER(ticker) = UPPER(%s);
+              AND ticker = %s;
             """,
             (usuario["id"], ticker_normalizado),
         )
@@ -1131,7 +1289,8 @@ def remover_favorito(
 
         return {
             "status": "sucesso",
-            "mensagem": f"{ticker_normalizado} removida da watchlist."
+            "mensagem": "Empresa removida dos favoritos",
+            "ticker": ticker_normalizado,
         }
 
     finally:

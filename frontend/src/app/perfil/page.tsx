@@ -291,48 +291,109 @@ export default function PerfilPage() {
                 </div>
               )}
 
-              <div className="mt-6 space-y-3">
-                {favoritos.length === 0 ? (
-                  <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
-                    <p className="text-slate-300">
-                      Você ainda não adicionou empresas à sua watchlist.
-                    </p>
-                  </div>
-                ) : (
-                  favoritos.map((item) => (
-                    <div
-                      key={item.ticker}
-                      className="rounded-3xl border border-white/10 bg-slate-900 p-5"
-                    >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-sm text-slate-500">{item.setor || "Setor não informado"}</p>
-                          <h3 className="mt-1 text-2xl font-bold text-sky-300">
-                            {item.ticker}
-                          </h3>
-                          <p className="text-slate-300">{item.empresa || "Empresa monitorada"}</p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {item.classificacao && (
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-slate-300">
-                              {item.classificacao}
-                            </span>
-                          )}
-
-                          <button
-                            onClick={() => removerFavorito(item.ticker)}
-                            className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition hover:border-red-400 hover:text-red-300"
-                          >
-                            Remover
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+        <div className="mt-6">
+          {favoritos.length === 0 ? (
+            <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+              <p className="text-slate-300">
+                Você ainda não adicionou empresas à sua watchlist.
+              </p>
             </div>
+          ) : (
+            <div className="grid gap-4">
+              {favoritos.map((item) => (
+                <div
+                  key={item.ticker}
+                  className="rounded-3xl border border-white/10 bg-slate-900 p-5"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm text-slate-500">
+                        {item.setor || "Setor não informado"}
+                      </p>
+
+                      <h3 className="mt-1 text-2xl font-bold text-sky-300">
+                        {item.ticker}
+                      </h3>
+
+                      <p className="text-slate-300">
+                        {item.empresa || "Empresa monitorada"}
+                      </p>
+                    </div>
+
+                    {item.classificacao && (
+                      <span className="w-fit rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-xs font-bold text-sky-300">
+                        {item.classificacao}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs uppercase tracking-wider text-slate-500">
+                        Preço
+                      </p>
+                      <p className="mt-1 font-bold text-white">
+                        {item.preco !== null && item.preco !== undefined
+  ? `R$ ${Number(item.preco).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+  : "-"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs uppercase tracking-wider text-slate-500">
+                        P/L
+                      </p>
+                      <p className="mt-1 font-bold text-white">
+                        {item.pl ?? "-"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs uppercase tracking-wider text-slate-500">
+                        ROE
+                      </p>
+                      <p className="mt-1 font-bold text-white">
+                        {item.roe != null ? `${item.roe}%` : "-"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs uppercase tracking-wider text-slate-500">
+                        Dividend Yield
+                      </p>
+                      <p className="mt-1 font-bold text-white">
+                        {item.dividend_yield != null
+                          ? `${item.dividend_yield}%`
+                          : "-"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      href={`/empresa/${item.ticker}`}
+                      className="rounded-full bg-sky-400 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-sky-300"
+                    >
+                      Ver empresa
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => removerFavorito(item.ticker)}
+                      className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white transition hover:border-red-400 hover:text-red-300"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
