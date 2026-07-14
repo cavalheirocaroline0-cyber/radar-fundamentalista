@@ -199,7 +199,13 @@ def salvar_no_neon(df):
             ON CONFLICT (ticker)
             DO UPDATE SET
                 empresa = EXCLUDED.empresa,
-                setor = EXCLUDED.setor,
+                setor = CASE
+            WHEN EXCLUDED.setor IS NULL
+              OR TRIM(EXCLUDED.setor) = ''
+              OR EXCLUDED.setor = 'A classificar'
+            THEN empresas.setor
+            ELSE EXCLUDED.setor
+        END,
                 ativo = EXCLUDED.ativo,
                 fonte = EXCLUDED.fonte;
         """))
