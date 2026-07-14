@@ -1,0 +1,25 @@
+UPDATE public.empresas_fundamentalistas
+SET setor = CASE
+    WHEN ticker IN ('ITUB3','ITUB4','BBDC3','BBDC4','BBAS3','SANB3','SANB4','SANB11','BPAC11','BPAN4','BRSR6','ABCB4') THEN 'Bancos'
+    WHEN ticker IN ('BBSE3','PSSA3','CXSE3','IRBR3','WIZC3') THEN 'Seguros'
+    WHEN ticker IN ('VALE3','CMIN3','GGBR3','GGBR4','GOAU3','GOAU4','CSNA3','USIM3','USIM5') THEN 'Mineração e Siderurgia'
+    WHEN ticker IN ('PETR3','PETR4','PRIO3','RECV3','RAIZ4','VBBR3','UGPA3','CSAN3') THEN 'Petróleo, Gás e Combustíveis'
+    WHEN ticker IN ('ELET3','ELET6','CPFE3','CMIG3','CMIG4','TAEE3','TAEE4','TAEE11','TRPL4','EGIE3','ENEV3','EQTL3','ALUP11','AURE3','NEOE3') THEN 'Energia Elétrica'
+    WHEN ticker IN ('SBSP3','SAPR3','SAPR4','SAPR11','CSMG3') THEN 'Saneamento'
+    WHEN ticker IN ('VIVT3','TIMS3') THEN 'Telecomunicações'
+    WHEN ticker IN ('SUZB3','KLBN3','KLBN4','KLBN11','RANI3') THEN 'Papel e Celulose'
+    WHEN ticker IN ('MGLU3','LREN3','AMER3','VIIA3','BHIA3','CEAB3','GUAR3','ARZZ3','SOMA3','PETZ3','ASAI3','CRFB3','GMAT3') THEN 'Varejo'
+    WHEN ticker IN ('CYRE3','MRVE3','DIRR3','CURY3','EZTC3','TEND3','TRIS3','LAVV3','EVEN3','JHSF3','MELK3') THEN 'Construção Civil'
+    WHEN ticker IN ('HAPV3','RADL3','FLRY3','DASA3','QUAL3','ONCO3','RDOR3','PNVL3') THEN 'Saúde'
+    WHEN ticker IN ('COGN3','YDUQ3','ANIM3','SEER3') THEN 'Educação'
+    WHEN ticker IN ('ABEV3','BRFS3','JBSS3','MRFG3','BEEF3','MDIA3','SMTO3','AGRO3') THEN 'Alimentos e Bebidas'
+    WHEN ticker IN ('RAIL3','CCRO3','ECOR3','AZUL4','GOLL4','LOGN3','STBP3') THEN 'Transporte e Logística'
+    WHEN ticker IN ('RENT3','MOVI3','VAMO3') THEN 'Locação e Serviços'
+    WHEN ticker IN ('TOTS3','LWSA3','POSI3','BMOB3','INTB3') THEN 'Tecnologia'
+    WHEN ticker IN ('B3SA3','CIEL3') THEN 'Serviços Financeiros'
+    WHEN ticker IN ('MULT3','IGTI11','ALSO3','BRML3','HBOR3') THEN 'Shoppings e Propriedades'
+    WHEN ticker IN ('WEGE3','EMBR3','MYPK3','RAPT4','POMO4','TUPY3','FRAS3','LEVE3') THEN 'Indústria'
+    WHEN ticker IN ('UNIP6','BRKM5','FESA4') THEN 'Químicos e Materiais'
+    WHEN ticker IN ('ITSA3','ITSA4','SIMH3') THEN 'Holding e Participações'
+    ELSE COALESCE(NULLIF(setor, ''), 'Setor a classificar')
+END;
