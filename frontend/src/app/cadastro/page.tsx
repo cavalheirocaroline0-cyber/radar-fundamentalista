@@ -12,9 +12,18 @@ export default function CadastroPage() {
   const [senha, setSenha] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [aceitouTermos, setAceitouTermos] = useState(false);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!aceitouTermos) {
+      setMensagem(
+        "Você precisa aceitar os Termos de Uso e a Política de Privacidade."
+      );
+      return;
+    }
+
     setCarregando(true);
     setMensagem("");
 
@@ -139,9 +148,40 @@ export default function CadastroPage() {
               </div>
             )}
 
+        <div className="mt-6 flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+          <input
+            id="aceite"
+            type="checkbox"
+            checked={aceitouTermos}
+            onChange={(e) => setAceitouTermos(e.target.checked)}
+            className="mt-1 h-4 w-4 accent-sky-400"
+          />
+
+          <label
+            htmlFor="aceite"
+            className="text-sm leading-6 text-slate-300"
+          >
+            Li e aceito os{" "}
+            <Link
+              href="/termos-de-uso"
+              target="_blank"
+              className="font-semibold text-sky-300 hover:underline"
+            >
+              Termos de Uso
+            </Link>{" "}
+            e declaro estar ciente da{" "}
+            <Link
+              href="/politica-de-privacidade"
+              target="_blank"
+              className="font-semibold text-sky-300 hover:underline"
+            >
+              Política de Privacidade
+            </Link>.
+          </label>
+        </div>
             <button
               type="submit"
-              disabled={carregando}
+              disabled={carregando || !aceitouTermos}
               className="mt-6 w-full rounded-full bg-sky-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60"
             >
               {carregando ? "Criando conta..." : "Criar minha conta"}

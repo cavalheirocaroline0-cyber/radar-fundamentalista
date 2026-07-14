@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import InstallAppButton from "@/components/InstallAppButton";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         {children}
+	<Footer />
         <InstallAppButton />
         <MobileBottomNav />
       </body>
