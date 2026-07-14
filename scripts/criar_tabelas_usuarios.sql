@@ -35,3 +35,33 @@ ON public.favoritos_empresas(usuario_id);
 
 CREATE INDEX IF NOT EXISTS idx_favoritos_ticker
 ON public.favoritos_empresas(ticker);
+
+CREATE TABLE IF NOT EXISTS public.recuperacao_senha (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES public.usuarios(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    usado BOOLEAN DEFAULT FALSE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expira_em TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_recuperacao_senha_usuario
+ON public.recuperacao_senha(usuario_id);
+
+CREATE INDEX IF NOT EXISTS idx_recuperacao_senha_token
+ON public.recuperacao_senha(token_hash);
+
+CREATE TABLE IF NOT EXISTS public.recuperacao_senha (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES public.usuarios(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    usado BOOLEAN DEFAULT FALSE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expira_em TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_recuperacao_senha_usuario
+ON public.recuperacao_senha(usuario_id);
+
+CREATE INDEX IF NOT EXISTS idx_recuperacao_senha_token
+ON public.recuperacao_senha(token_hash);

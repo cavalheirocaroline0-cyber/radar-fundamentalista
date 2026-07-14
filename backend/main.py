@@ -800,3 +800,151 @@ def obter_usuario_logado(authorization: Optional[str] = Header(default=None)):
     return {
         "usuario": usuario
     }
+
+
+# =========================
+# Recuperação de senha
+# =========================
+
+from datetime import datetime, timedelta
+
+
+class EsqueciSenha(BaseModel):
+    email: str
+
+
+class RedefinirSenha(BaseModel):
+    token: str
+    nova_senha: str
+
+
+@app.post("/usuarios/esqueci-senha")
+def esqueci_senha(dados: EsqueciSenha):
+    email = validar_email_simples(dados.email)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT id, nome, email
+            FROM public.usuarios
+            WHERE email = %s
+            LIMIT 1;
+            """,
+            (email,),
+        )
+
+        usuario = cur.fetchone()
+
+        # Resposta genérica por segurança.
+        # Assim ninguém descobre se um e-mail existe ou não.
+        if not usuario:
+            return {
+                "status": "sucesso",
+                "mensagem": "Se o e-mail estiver cadastrado, enviaremos instruções de recuperação."
+            }
+
+        usuario = dict(usuario)
+
+        token = criar_token()
+        token_hash = criar_hash_token(token)
+        expira_em = datetime.utcnow() + timedelta(hours=1)
+
+        cur.execute(
+            """
+            INSERT INTO public.recuperacao_senha (
+                usuario_id,
+                token_hash,
+                expira_em
+            )
+            VALUES (%s, %s, %s);
+            """,
+            (usuario["id"], token_hash, expira_em),
+        )
+
+        conn.commit()
+
+        # MVP: por enquanto devolvemos o link na resposta para teste.
+        # Em produção, esse link deve ser enviado por e-mail.
+        link_redefinicao = f"http://localhost:3000/redefinir-senha?token={token}"
+
+        return {
+            "status": "sucesso",
+            "mensagem": "Link de recuperação gerado com sucesso.",
+            "link_redefinicao": link_redefinicao
+        }
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.post("/usuarios/redefinir-senha")
+def redefinir_senha(dados: RedefinirSenha):
+    token = dados.token.strip()
+    nova_senha = dados.nova_senha.strip()
+
+    if len(nova_senha) < 6:
+        raise HTTPException(status_code=400, detail="A nova senha precisa ter pelo menos 6 caracteres")
+
+    token_hash = criar_hash_token(token)
+    nova_senha_hash = criar_hash_senha(nova_senha)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT id, usuario_id, usado, expira_em
+            FROM public.recuperacao_senha
+            WHERE token_hash = %s
+            LIMIT 1;
+            """,
+            (token_hash,),
+        )
+
+        recuperacao = cur.fetchone()
+
+        if not recuperacao:
+            raise HTTPException(status_code=400, detail="Token inválido")
+
+        recuperacao = dict(recuperacao)
+
+        if recuperacao["usado"]:
+            raise HTTPException(status_code=400, detail="Token já utilizado")
+
+        if recuperacao["expira_em"] < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Token expirado")
+
+        cur.execute(
+            """
+            UPDATE public.usuarios
+            SET senha_hash = %s,
+                atualizado_em = CURRENT_TIMESTAMP
+            WHERE id = %s;
+            """,
+            (nova_senha_hash, recuperacao["usuario_id"]),
+        )
+
+        cur.execute(
+            """
+            UPDATE public.recuperacao_senha
+            SET usado = TRUE
+            WHERE id = %s;
+            """,
+            (recuperacao["id"],),
+        )
+
+        conn.commit()
+
+        return {
+            "status": "sucesso",
+            "mensagem": "Senha redefinida com sucesso"
+        }
+
+    finally:
+        cur.close()
+        conn.close()

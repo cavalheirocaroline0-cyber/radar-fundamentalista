@@ -119,6 +119,12 @@ export default function EntrarPage() {
               </div>
             </div>
 
+            <div className="mt-3 text-right">
+              <Link href="/esqueci-senha" className="text-sm font-semibold text-sky-300 hover:underline">
+                Esqueci minha senha
+              </Link>
+            </div>
+
             {mensagem && (
               <div className="mt-5 rounded-2xl border border-sky-400/20 bg-sky-400/10 p-4 text-sm text-sky-200">
                 {mensagem}
