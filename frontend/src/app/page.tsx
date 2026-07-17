@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
+import PremiumOfferBanner from "@/components/PremiumOfferBanner";
 export const dynamic = "force-dynamic";
 
 function formatarNumero(valor: number | string | null | undefined) {
@@ -177,6 +178,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      <PremiumOfferBanner />
       <Header />
 
       <section className="relative overflow-hidden border-b border-white/10">
