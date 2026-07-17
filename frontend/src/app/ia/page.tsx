@@ -1,18 +1,12 @@
-export default function IAPage() {
-  const sugestoes = [
-    "O que significa P/L?",
-    "Como interpretar ROE?",
-    "O que é Dividend Yield?",
-    "Como funciona o score do Dash Diário?",
-    "Como a Selic influencia o mercado?",
-  ];
+import Link from "next/link";
 
+export default function IAPage() {
   return (
     <main className="min-h-screen bg-slate-950 px-4 pb-28 pt-8 text-slate-100">
       <section className="mx-auto max-w-4xl">
-        <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-6 shadow-2xl shadow-black/30">
+        <div className="rounded-3xl border border-sky-400/20 bg-gradient-to-br from-slate-900 to-slate-950 p-6 shadow-2xl shadow-black/30">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-300">
-            Assistente IA
+            Recurso Premium
           </p>
 
           <h1 className="mt-4 text-3xl font-bold">
@@ -20,59 +14,114 @@ export default function IAPage() {
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">
-            Tire dúvidas sobre indicadores, rankings, empresas, mercado e
-            análise fundamentalista de forma simples e educativa.
+            Uma assistente educativa para explicar indicadores, rankings,
+            empresas e contexto de mercado de forma simples, clara e
+            informativa.
           </p>
 
-          <div className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
-            A IA do Dash Diário tem finalidade educativa e informativa. Ela não
-            realiza recomendação de investimento, consultoria financeira ou
-            indicação de compra e venda de ativos.
+          <div className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm leading-relaxed text-amber-100">
+            A IA do Dash Diário não realiza recomendação de investimento,
+            consultoria financeira ou indicação de compra e venda de ativos. O
+            foco é educação, interpretação de dados e apoio ao estudo do
+            mercado.
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <label
-            htmlFor="pergunta"
-            className="text-sm font-semibold text-slate-200"
-          >
-            Faça uma pergunta
-          </label>
+        <div className="mt-6 rounded-3xl border border-sky-400/30 bg-slate-900 p-6 shadow-xl shadow-sky-950/30">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
+                Oferta inicial
+              </p>
 
-          <textarea
-            id="pergunta"
-            rows={5}
-            placeholder="Exemplo: o que significa P/L baixo?"
-            className="mt-3 w-full resize-none rounded-2xl border border-slate-700 bg-slate-950 p-4 text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:border-sky-400"
-          />
+              <h2 className="mt-3 text-2xl font-bold">
+                Assine o Dash Diário Premium
+              </h2>
 
-          <button
-            type="button"
-            className="mt-4 w-full rounded-2xl bg-sky-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-sky-300"
-          >
-            Perguntar à IA
-          </button>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-400">
+                Tenha acesso à Assistente IA do Dash Diário para entender
+                indicadores, rankings e conceitos de mercado com mais clareza no
+                seu dia a dia.
+              </p>
+            </div>
 
-          <p className="mt-3 text-xs text-slate-500">
-            Em breve esta área será conectada à assistente real do Dash Diário.
+            <div className="rounded-3xl border border-slate-700 bg-slate-950 p-5 text-center">
+              <p className="text-sm text-slate-400">Plano inicial</p>
+
+              <div className="mt-2 flex items-end justify-center gap-1">
+                <span className="text-2xl font-bold text-slate-100">R$</span>
+                <span className="text-5xl font-extrabold text-sky-300">
+                  19,90
+                </span>
+              </div>
+
+              <p className="mt-2 text-sm text-slate-400">por mês</p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-300">
+                ✅ Explicações sobre P/L, P/VP, ROE e Dividend Yield
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-300">
+                ✅ Interpretação educativa dos rankings do Dash Diário
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-300">
+                ✅ Apoio para entender Selic, IPCA, dólar e cenário de mercado
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-300">
+                ✅ Experiência premium dentro do app Dash Diário
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <Link
+              href="https://www.asaas.com/c/8u7kbl" target="_blank" rel="noopener noreferrer"
+              className="rounded-2xl bg-sky-400 px-5 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-sky-300"
+            >
+              Assinar por R$ 19,90/mês
+            </Link>
+
+            <Link
+              href="/feedback"
+              className="rounded-2xl border border-slate-700 px-5 py-3 text-center text-sm font-semibold text-slate-200 transition hover:border-sky-400"
+            >
+              Enviar sugestão
+            </Link>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-slate-500">
+            A assinatura ainda está em fase de validação. Ao entrar na lista,
+            você será avisado quando o acesso premium estiver disponível.
           </p>
         </div>
 
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold">
-            Perguntas rápidas
-          </h2>
+        <div className="mt-6 grid gap-4">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+            <h3 className="font-semibold">O que a IA vai fazer?</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Explicar indicadores, conceitos financeiros, rankings, score e
+              contexto macroeconômico em linguagem simples.
+            </p>
+          </div>
 
-          <div className="mt-4 grid gap-3">
-            {sugestoes.map((sugestao) => (
-              <button
-                key={sugestao}
-                type="button"
-                className="rounded-2xl border border-slate-800 bg-slate-900 p-4 text-left text-sm text-slate-300 transition hover:border-sky-400 hover:text-slate-100"
-              >
-                {sugestao}
-              </button>
-            ))}
+          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+            <h3 className="font-semibold">O que a IA não vai fazer?</h3>
+            <p className="mt-2 text-sm text-slate-400">
+              Ela não vai dizer onde investir, não vai montar carteira e não vai
+              recomendar compra ou venda de ativos.
+            </p>
           </div>
         </div>
       </section>
