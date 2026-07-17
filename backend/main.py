@@ -1137,3 +1137,79 @@ def remover_favorito(
     finally:
         cur.close()
         conn.close()
+
+# --- Lista Premium Dash Diário ---
+
+from typing import Optional
+from pydantic import BaseModel
+from fastapi import HTTPException
+from sqlalchemy import create_engine, text
+import os
+import re
+
+
+class InteressePremiumPayload(BaseModel):
+    nome: str
+    email: str
+    whatsapp: Optional[str] = None
+
+
+@app.post("/premium/interesse")
+def criar_interesse_premium(payload: InteressePremiumPayload):
+    nome = payload.nome.strip()
+    email = payload.email.strip().lower()
+    whatsapp = (payload.whatsapp or "").strip()
+
+    if len(nome) < 2:
+        raise HTTPException(status_code=400, detail="Informe seu nome.")
+
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
+
+    if whatsapp and len(whatsapp) < 8:
+        raise HTTPException(status_code=400, detail="Informe um WhatsApp válido.")
+
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise HTTPException(status_code=500, detail="DATABASE_URL não configurada.")
+
+    engine = create_engine(database_url)
+
+    with engine.begin() as conn:
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS lista_premium (
+                id SERIAL PRIMARY KEY,
+                nome TEXT NOT NULL,
+                email TEXT NOT NULL,
+                whatsapp TEXT,
+                origem TEXT DEFAULT 'pagina_premium',
+                status TEXT DEFAULT 'interessado',
+                criado_em TIMESTAMP DEFAULT NOW()
+            );
+        """))
+
+        conn.execute(text("""
+            INSERT INTO lista_premium (
+                nome,
+                email,
+                whatsapp,
+                origem,
+                status
+            )
+            VALUES (
+                :nome,
+                :email,
+                :whatsapp,
+                'pagina_premium',
+                'interessado'
+            );
+        """), {
+            "nome": nome,
+            "email": email,
+            "whatsapp": whatsapp,
+        })
+
+    return {
+        "mensagem": "Interesse premium registrado com sucesso."
+    }

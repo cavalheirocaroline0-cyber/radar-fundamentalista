@@ -45,10 +45,10 @@ export default function PremiumOfferBanner() {
             <p className="mt-1 text-sm text-slate-400">por mês</p>
 
             <Link
-              href="/ia"
+              href="/premium"
               className="mt-5 block rounded-2xl bg-sky-400 px-6 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-sky-300"
             >
-              Assinar agora
+              Entrar na lista premium
             </Link>
 
             <p className="mt-3 text-xs text-slate-500">

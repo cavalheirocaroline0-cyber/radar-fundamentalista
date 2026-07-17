@@ -87,10 +87,10 @@ export default function IAPage() {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <Link
-              href="https://www.asaas.com/c/8u7kbl" target="_blank" rel="noopener noreferrer"
+              href="/premium"
               className="rounded-2xl bg-sky-400 px-5 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-sky-300"
             >
-              Assinar por R$ 19,90/mês
+              Entrar na lista premium
             </Link>
 
             <Link
