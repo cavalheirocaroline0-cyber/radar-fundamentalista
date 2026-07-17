@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "br.com.dashdiario.app",
+      "sha256_cert_fingerprints": [
+        "40:63:F4:BC:42:F7:AB:76:E7:6C:98:AB:4A:61:86:25:10:9B:9B:E3:49:C6:DD:49:CF:BB:54:A8:CC:28:65:99"
+      ]
+    }
+  }
+]
