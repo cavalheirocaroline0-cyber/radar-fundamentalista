@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import SaudacaoHome from "@/components/SaudacaoHome";
 import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
-import PremiumOfferBanner from "@/components/PremiumOfferBanner";
 export const dynamic = "force-dynamic";
 
 function formatarNumero(valor: number | string | null | undefined) {
@@ -75,7 +75,7 @@ function gerarResumoMercado(ativos: any[]) {
   });
 
   if (!ativoComVariacao) {
-    return "Seu resumo do mercado já está pronto para acompanhar os principais indicadores do dia.";
+    return "Aprenda a interpretar empresas, indicadores, rankings e cenário do dia com a IA do Dash.";
   }
 
   const variacao = Number(ativoComVariacao.variacao_24h);
@@ -178,8 +178,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <PremiumOfferBanner />
-      <Header />
+<Header />
 
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
@@ -192,16 +191,14 @@ export default async function Home() {
                 ☀️ Todo dia começa com o Dash
               </div>
 
-              <h1 className="mt-6 max-w-5xl text-5xl font-black tracking-tight md:text-7xl">
-                {saudacao}. Seu resumo do mercado está pronto.
-              </h1>
+              <SaudacaoHome saudacao={saudacao} />
 
               <p className="mt-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
                 {dataHoje}
               </p>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                {resumoMercado} Acompanhe mercado, empresas, rankings e insights em uma experiência simples para começar o dia com clareza.
+                {resumoMercado} A IA traduz dados fundamentalistas em explicações simples, educativas e sem linguagem complicada.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -220,10 +217,10 @@ export default async function Home() {
                 </Link>
 
                 <Link
-                  href="/dash"
+                  href="/ia"
                   className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
                 >
-                  Abrir Dash
+                  Perguntar para a IA
                 </Link>
               </div>
             </div>
