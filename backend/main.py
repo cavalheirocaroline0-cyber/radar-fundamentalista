@@ -1213,3 +1213,72 @@ def criar_interesse_premium(payload: InteressePremiumPayload):
     return {
         "mensagem": "Interesse premium registrado com sucesso."
     }
+
+
+# =========================
+# IA do Dash Diário
+# =========================
+
+import os
+from openai import OpenAI
+from pydantic import BaseModel
+from fastapi import HTTPException
+
+
+class PerguntaIA(BaseModel):
+    pergunta: str
+
+
+@app.post("/ia/perguntar")
+def perguntar_ia(dados: PerguntaIA):
+    pergunta = dados.pergunta.strip()
+
+    if not pergunta:
+        raise HTTPException(status_code=400, detail="Digite uma pergunta para a IA.")
+
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="OPENAI_API_KEY não configurada no backend."
+        )
+
+    client = OpenAI(api_key=api_key)
+
+    try:
+        resposta = client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            max_tokens=450,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Você é a IA do Dash Diário, um assistente educacional sobre mercado, "
+                        "empresas, indicadores fundamentalistas e organização financeira. "
+                        "Responda em português do Brasil, com linguagem simples e objetiva. "
+                        "Nunca faça recomendação direta de compra, venda ou manutenção de ativos. "
+                        "Sempre deixe claro que a resposta é informativa e não substitui análise individual "
+                        "nem recomendação de investimento."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": pergunta,
+                },
+            ],
+        )
+
+        texto = resposta.choices[0].message.content
+
+        return {
+            "status": "sucesso",
+            "resposta": texto,
+        }
+
+    except Exception as erro:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao consultar IA: {str(erro)}"
+        )
