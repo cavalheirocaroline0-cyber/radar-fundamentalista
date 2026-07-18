@@ -13,7 +13,7 @@ const mobileLinks = [
   { href: "/", label: "Home", icon: "☀️" },
   { href: "/empresas", label: "Empresas", icon: "🏢" },
   { href: "/perfil", label: "Carteira", icon: "⭐" },
-  { href: "/insights", label: "IA", icon: "🤖" },
+  { href: "/ia", label: "IA", icon: "🤖" },
   { href: "/perfil", label: "Perfil", icon: "👤" },
 ];
 
