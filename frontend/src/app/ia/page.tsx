@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -17,6 +17,15 @@ export default function IAPage() {
   const [resposta, setResposta] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const perguntaUrl = params.get("pergunta");
+
+    if (perguntaUrl) {
+      setPergunta(perguntaUrl);
+    }
+  }, []);
 
   async function perguntarIA(texto?: string) {
     const perguntaFinal = (texto || pergunta).trim();

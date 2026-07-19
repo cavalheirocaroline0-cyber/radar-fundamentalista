@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import HomeHero from "@/components/HomeHero";
 import SaudacaoHome from "@/components/SaudacaoHome";
 import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
@@ -179,98 +180,17 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
 <Header />
+      <HomeHero
+        saudacao={saudacao}
+        dataHoje={dataHoje}
+        resumoMercado={resumoMercado}
+        erro={erro}
+        empresas={empresas}
+        ranking={ranking}
+        indicadores={indicadores}
+        ativos={ativos}
+      />
 
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
-        <div className="absolute right-0 top-40 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
-
-        <div className="relative mx-auto max-w-7xl px-6 py-12">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr] lg:items-center">
-            <div>
-              <div className="inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-2 text-sm font-semibold text-sky-300">
-                ☀️ Todo dia começa com o Dash
-              </div>
-
-              <SaudacaoHome saudacao={saudacao} />
-
-              <p className="mt-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
-                {dataHoje}
-              </p>
-
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                {resumoMercado} A IA traduz dados fundamentalistas em explicações simples, educativas e sem linguagem complicada.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/empresas"
-                  className="rounded-full bg-sky-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-sky-300"
-                >
-                  Explorar empresas
-                </Link>
-
-                <Link
-                  href="/ranking"
-                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
-                >
-                  Ver ranking
-                </Link>
-
-                <Link
-                  href="/ia"
-                  className="rounded-full border border-white/20 px-6 py-3 font-bold text-white transition hover:border-sky-400 hover:text-sky-300"
-                >
-                  Perguntar para a IA
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-sky-400/20 bg-white/[0.04] p-6 shadow-2xl shadow-sky-950/30">
-              <p className="text-sm text-slate-400">Resumo da plataforma</p>
-
-              <div className="mt-5 grid gap-4">
-                <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-5">
-                  <p className="text-sm text-slate-300">Empresas monitoradas</p>
-                  <p className="mt-2 text-6xl font-black text-sky-300">
-                    {erro ? "-" : empresas.length}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">Ranking</p>
-                    <p className="mt-2 text-3xl font-bold">
-                      {erro ? "-" : ranking.length}
-                    </p>
-                  </div>
-
-                  <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">Macro</p>
-                    <p className="mt-2 text-3xl font-bold">
-                      {erro ? "-" : indicadores.length + ativos.length}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-sm text-slate-500">
-                  Dados conectados via Neon, API e frontend Next.js.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {erro && (
-            <div className="mt-8 rounded-3xl border border-red-400/30 bg-red-400/10 p-6">
-              <h2 className="text-2xl font-bold text-red-300">
-                Não foi possível carregar os dados reais
-              </h2>
-              <p className="mt-3 text-slate-300">
-                Confirme se o backend está rodando e se a API está disponível.
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
 
       <section className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid gap-4 md:grid-cols-3">
