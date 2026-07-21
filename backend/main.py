@@ -1282,3 +1282,183 @@ def perguntar_ia(dados: PerguntaIA):
             status_code=500,
             detail=f"Erro ao consultar IA: {str(erro)}"
         )
+
+
+# --- DASH PREMIUM / ASAAS WEBHOOK ---
+import os as _dash_os
+import psycopg2 as _dash_psycopg2
+from psycopg2.extras import Json as _DashJson
+from fastapi import Request as _DashRequest, Header as _DashHeader, HTTPException as _DashHTTPException
+
+
+def _dash_database_url():
+    url = _dash_os.getenv("DATABASE_URL")
+    if not url:
+        raise RuntimeError("DATABASE_URL não configurada no backend.")
+    return url
+
+
+def _dash_extrair_ids_asaas(payload: dict):
+    event_id = payload.get("id") or payload.get("eventId")
+    event_type = payload.get("event")
+
+    payment = payload.get("payment") or {}
+    subscription = payload.get("subscription") or {}
+
+    payment_id = payment.get("id")
+    customer_id = payment.get("customer") or subscription.get("customer")
+    subscription_id = payment.get("subscription") or subscription.get("id")
+
+    if not event_id:
+        base = f"{event_type}-{payment_id}-{subscription_id}-{customer_id}"
+        event_id = base.replace("None", "sem_id")
+
+    return event_id, event_type, payment_id, customer_id, subscription_id
+
+
+def _dash_atualizar_usuario_assinatura(cur, event_type, customer_id, subscription_id):
+    if not customer_id and not subscription_id:
+        return 0
+
+    filtros = []
+    params = []
+
+    if customer_id:
+        filtros.append("asaas_customer_id = %s")
+        params.append(customer_id)
+
+    if subscription_id:
+        filtros.append("asaas_subscription_id = %s")
+        params.append(subscription_id)
+
+    where = " OR ".join(filtros)
+
+    eventos_ativos = {
+        "PAYMENT_RECEIVED",
+        "PAYMENT_CONFIRMED",
+        "SUBSCRIPTION_CREATED",
+        "SUBSCRIPTION_UPDATED",
+    }
+
+    eventos_cancelamento = {
+        "PAYMENT_OVERDUE",
+        "PAYMENT_DELETED",
+        "PAYMENT_REFUNDED",
+        "PAYMENT_CHARGEBACK_REQUESTED",
+        "PAYMENT_CHARGEBACK_DISPUTE",
+        "PAYMENT_AWAITING_CHARGEBACK_REVERSAL",
+        "SUBSCRIPTION_DELETED",
+        "SUBSCRIPTION_INACTIVATED",
+    }
+
+    if event_type in eventos_ativos:
+        status = "ativo" if event_type in {"PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"} else "trial"
+
+        sql = f"""
+            UPDATE usuarios
+            SET plano = 'premium',
+                status_assinatura = %s,
+                asaas_customer_id = COALESCE(asaas_customer_id, %s),
+                asaas_subscription_id = COALESCE(asaas_subscription_id, %s),
+                assinatura_atualizada_em = NOW()
+            WHERE {where}
+        """
+
+        cur.execute(sql, [status, customer_id, subscription_id] + params)
+        return cur.rowcount
+
+    if event_type in eventos_cancelamento:
+        sql = f"""
+            UPDATE usuarios
+            SET plano = 'gratuito',
+                status_assinatura = 'cancelado',
+                assinatura_atualizada_em = NOW()
+            WHERE {where}
+        """
+
+        cur.execute(sql, params)
+        return cur.rowcount
+
+    return 0
+
+
+@app.post("/webhooks/asaas")
+async def receber_webhook_asaas(
+    request: _DashRequest,
+    asaas_access_token: str | None = _DashHeader(default=None, alias="asaas-access-token"),
+):
+    token_esperado = _dash_os.getenv("ASAAS_WEBHOOK_TOKEN")
+
+    if token_esperado and asaas_access_token != token_esperado:
+        raise _DashHTTPException(status_code=401, detail="Token do webhook inválido.")
+
+    payload = await request.json()
+
+    event_id, event_type, payment_id, customer_id, subscription_id = _dash_extrair_ids_asaas(payload)
+
+    conn = _dash_psycopg2.connect(_dash_database_url())
+
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO asaas_webhook_eventos (
+                        event_id,
+                        event_type,
+                        payment_id,
+                        customer_id,
+                        subscription_id,
+                        raw_payload
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (event_id) DO NOTHING
+                    RETURNING id
+                    """,
+                    (
+                        event_id,
+                        event_type,
+                        payment_id,
+                        customer_id,
+                        subscription_id,
+                        _DashJson(payload),
+                    ),
+                )
+
+                inserido = cur.fetchone()
+
+                if not inserido:
+                    return {
+                        "ok": True,
+                        "duplicado": True,
+                        "event_id": event_id,
+                    }
+
+                usuarios_atualizados = _dash_atualizar_usuario_assinatura(
+                    cur,
+                    event_type,
+                    customer_id,
+                    subscription_id,
+                )
+
+                cur.execute(
+                    """
+                    UPDATE asaas_webhook_eventos
+                    SET usuarios_atualizados = %s
+                    WHERE event_id = %s
+                    """,
+                    (usuarios_atualizados, event_id),
+                )
+
+        return {
+            "ok": True,
+            "event_id": event_id,
+            "event_type": event_type,
+            "customer_id": customer_id,
+            "subscription_id": subscription_id,
+            "usuarios_atualizados": usuarios_atualizados,
+        }
+
+    finally:
+        conn.close()
+
