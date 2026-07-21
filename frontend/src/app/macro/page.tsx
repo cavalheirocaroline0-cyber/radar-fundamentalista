@@ -539,7 +539,7 @@ export default async function MacroPage() {
                     Antes de tomar crédito
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-400">
-                    Selic e inflação ajudam a entender se o custo do dinheiro
+                    Selic acumulada, DI mensal e inflação ajudam a entender se o custo do dinheiro
                     está caro e se vale adiar ou antecipar uma decisão.
                   </p>
                 </div>

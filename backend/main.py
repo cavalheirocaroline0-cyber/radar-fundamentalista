@@ -1289,6 +1289,7 @@ import os as _dash_os
 import psycopg2 as _dash_psycopg2
 from psycopg2.extras import Json as _DashJson
 from fastapi import Request as _DashRequest, Header as _DashHeader, HTTPException as _DashHTTPException
+from typing import Optional as _DashOptional
 
 
 def _dash_database_url():
@@ -1385,7 +1386,7 @@ def _dash_atualizar_usuario_assinatura(cur, event_type, customer_id, subscriptio
 @app.post("/webhooks/asaas")
 async def receber_webhook_asaas(
     request: _DashRequest,
-    asaas_access_token: str | None = _DashHeader(default=None, alias="asaas-access-token"),
+    asaas_access_token: _DashOptional[str] = _DashHeader(default=None, alias="asaas-access-token"),
 ):
     token_esperado = _dash_os.getenv("ASAAS_WEBHOOK_TOKEN")
 
