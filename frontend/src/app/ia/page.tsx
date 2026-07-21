@@ -149,7 +149,7 @@ export default function IAPage() {
             <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">
               Você pode continuar usando o Dash gratuitamente para acompanhar empresas,
               rankings, indicadores e watchlist. Para usar a IA, ative o Premium com
-              7 dias grátis e depois R$ 4,90 por semana.
+              7 dias grátis e depois R$ 5,00 por semana.
             </p>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2">
@@ -176,7 +176,7 @@ export default function IAPage() {
                 </h2>
 
                 <p className="mt-3 text-sm leading-7 text-slate-300">
-                  Primeira semana grátis. Depois, R$ 4,90 por semana.
+                  Primeira semana grátis. Depois, R$ 5,00 por semana.
                 </p>
 
                 <Link

@@ -20,7 +20,7 @@ export default function CheckoutPage() {
 
           <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">
             Comece com 7 dias grátis. Depois, sua assinatura será de
-            <strong className="text-sky-200"> R$ 4,90 por semana</strong>.
+            <strong className="text-sky-200"> R$ 5,00 por semana</strong>.
             A IA é um recurso educativo para entender indicadores, empresas,
             rankings e cenário de mercado.
           </p>
@@ -51,7 +51,7 @@ export default function CheckoutPage() {
               </p>
 
               <p className="mt-2 text-5xl font-black text-white">
-                R$ 4,90
+                R$ 5,00
               </p>
 
               <p className="mt-1 text-sm text-slate-400">

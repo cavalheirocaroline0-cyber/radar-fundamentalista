@@ -87,7 +87,7 @@ export default function PlanosHome() {
               </p>
 
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                Depois, apenas <strong className="text-sky-200">R$ 4,90 por semana</strong>.
+                Depois, apenas <strong className="text-sky-200">R$ 5,00 por semana</strong>.
                 Cancele quando quiser.
               </p>
             </div>
