@@ -69,22 +69,7 @@ export default function HomeHero({
               Ver ranking
             </Link>
           </div>
-
-          <div className="mt-8 max-w-3xl rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
-              Beta premium
-            </p>
-
-            <p className="mt-2 text-xl font-black text-white">
-              90 dias grátis para os primeiros 50 assinantes.
-            </p>
-
-            <p className="mt-2 text-sm leading-6 text-emerald-100/90">
-              Desenvolva hábitos de qualidade com dados, IA e uma rotina diária
-              para entender melhor o mercado antes de decidir.
-            </p>
-          </div>
-        </div>
+</div>
 
         <div className="relative">
           <div className="rounded-[2.2rem] border border-sky-400/20 bg-slate-950/80 p-5 shadow-2xl shadow-sky-950/40 backdrop-blur">

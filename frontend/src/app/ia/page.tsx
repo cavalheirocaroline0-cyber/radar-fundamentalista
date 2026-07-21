@@ -1,30 +1,84 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Header from "@/components/Header";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const sugestoes = [
+  "Oi Dash, como está o mercado hoje?",
   "Explique o que é ROE de forma simples.",
   "Como analisar dívida líquida sobre patrimônio?",
   "O que significa dividend yield?",
   "Compare ROE, P/L e P/VP em linguagem simples.",
 ];
 
+type UsuarioDash = {
+  nome?: string;
+  email?: string;
+  plano?: string;
+  status_assinatura?: string;
+};
+
+function usuarioTemPremium(usuario: UsuarioDash | null) {
+  const plano = String(usuario?.plano || "").toLowerCase();
+  const status = String(usuario?.status_assinatura || "").toLowerCase();
+
+  return plano === "premium" || status === "ativo" || status === "trial";
+}
+
 export default function IAPage() {
   const [pergunta, setPergunta] = useState("");
   const [resposta, setResposta] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
+  const [checandoPlano, setChecandoPlano] = useState(true);
+  const [usuario, setUsuario] = useState<UsuarioDash | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const perguntaUrl = params.get("pergunta");
+    async function iniciar() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const perguntaUrl = params.get("pergunta");
 
-    if (perguntaUrl) {
-      setPergunta(perguntaUrl);
+        if (perguntaUrl) {
+          setPergunta(perguntaUrl);
+        }
+
+        const usuarioSalvo = localStorage.getItem("dash_usuario");
+
+        if (usuarioSalvo) {
+          setUsuario(JSON.parse(usuarioSalvo));
+        }
+
+        const token = localStorage.getItem("dash_token");
+
+        if (!token) {
+          return;
+        }
+
+        const retorno = await fetch(`${API_URL}/usuarios/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (retorno.ok) {
+          const dados = await retorno.json();
+          const usuarioAtualizado = dados.usuario || dados;
+
+          setUsuario(usuarioAtualizado);
+          localStorage.setItem("dash_usuario", JSON.stringify(usuarioAtualizado));
+        }
+      } catch {
+        // Mantém a checagem local se houver erro.
+      } finally {
+        setChecandoPlano(false);
+      }
     }
+
+    iniciar();
   }, []);
 
   async function perguntarIA(texto?: string) {
@@ -66,6 +120,84 @@ export default function IAPage() {
     }
   }
 
+  if (checandoPlano) {
+    return (
+      <main className="min-h-screen bg-slate-950 text-white">
+        <Header />
+        <section className="mx-auto max-w-5xl px-6 py-12">
+          <p className="text-slate-300">Verificando seu plano...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!usuarioTemPremium(usuario)) {
+    return (
+      <main className="min-h-screen bg-slate-950 text-white">
+        <Header />
+
+        <section className="mx-auto max-w-5xl px-6 py-12">
+          <div className="rounded-[2rem] border border-sky-400/20 bg-white/[0.04] p-6 md:p-10">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-sky-300">
+              Recurso Premium
+            </p>
+
+            <h1 className="mt-4 text-4xl font-black md:text-5xl">
+              A IA do Dash está no plano Premium.
+            </h1>
+
+            <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">
+              Você pode continuar usando o Dash gratuitamente para acompanhar empresas,
+              rankings, indicadores e watchlist. Para usar a IA, ative o Premium com
+              7 dias grátis e depois R$ 4,90 por semana.
+            </p>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5">
+                <h2 className="text-2xl font-black">
+                  Seu plano atual
+                </h2>
+
+                <p className="mt-3 text-sm leading-7 text-slate-300">
+                  Recursos liberados: Home, Empresas, Ranking, Macro, Perfil e Watchlist.
+                </p>
+
+                <Link
+                  href="/empresas"
+                  className="mt-6 inline-flex w-full justify-center rounded-full border border-white/20 px-6 py-4 text-center font-black text-white transition hover:border-sky-400 hover:text-sky-300"
+                >
+                  Continuar no gratuito
+                </Link>
+              </div>
+
+              <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-5">
+                <h2 className="text-2xl font-black">
+                  Premium com IA
+                </h2>
+
+                <p className="mt-3 text-sm leading-7 text-slate-300">
+                  Primeira semana grátis. Depois, R$ 4,90 por semana.
+                </p>
+
+                <Link
+                  href="/checkout?plano=premium"
+                  className="mt-6 inline-flex w-full justify-center rounded-full bg-sky-400 px-6 py-4 text-center font-black text-slate-950 transition hover:bg-sky-300"
+                >
+                  Começar 7 dias grátis
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
+              A IA do Dash é educativa e informativa. Ela não recomenda compra,
+              venda ou manutenção de ativos.
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 pb-28 text-white">
       <Header />
@@ -73,7 +205,7 @@ export default function IAPage() {
       <section className="mx-auto max-w-6xl px-6 py-10">
         <div className="rounded-[2rem] border border-sky-400/20 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-slate-950 p-6 shadow-2xl shadow-sky-950/30 md:p-10">
           <div className="inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-2 text-sm font-semibold text-sky-300">
-            🤖 Assistente IA
+            🤖 Assistente IA Premium
           </div>
 
           <h1 className="mt-6 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">
@@ -100,7 +232,7 @@ export default function IAPage() {
             <textarea
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              placeholder="Ex: Explique de forma simples o que é ROE em uma empresa."
+              placeholder="Ex: Oi Dash, como está o mercado hoje?"
               className="mt-3 min-h-40 w-full resize-none rounded-3xl border border-white/10 bg-slate-900 p-4 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400"
             />
 
