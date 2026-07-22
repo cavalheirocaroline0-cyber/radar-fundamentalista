@@ -36,8 +36,12 @@ export default function EntrarPage() {
         return;
       }
 
+      localStorage.setItem("token", dados.token);
       localStorage.setItem("dash_token", dados.token);
+      localStorage.setItem("usuario", JSON.stringify(dados.usuario));
       localStorage.setItem("dash_usuario", JSON.stringify(dados.usuario));
+
+      window.dispatchEvent(new Event("auth-changed"));
 
       setMensagem("Login realizado com sucesso! Redirecionando...");
 

@@ -53,7 +53,7 @@ export default function HomeHero({
             </Link>
 
             <Link
-              href="/login"
+              href="/entrar"
               className="inline-flex justify-center rounded-full border border-white/10 px-6 py-4 text-sm font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
             >
               Já tenho conta
