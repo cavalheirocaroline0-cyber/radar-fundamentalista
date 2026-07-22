@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type HomeHeroProps = {
@@ -11,7 +14,144 @@ type HomeHeroProps = {
   ativos: unknown[];
 };
 
+type UsuarioDash = {
+  nome?: string;
+  email?: string;
+  plano?: string;
+  status_assinatura?: string;
+};
+
+function primeiroNome(nome?: string) {
+  if (!nome) return "investidor";
+  return nome.trim().split(" ")[0] || "investidor";
+}
+
+function comoRegistro(item: unknown) {
+  if (item && typeof item === "object") {
+    return item as Record<string, unknown>;
+  }
+
+  return {};
+}
+
+function textoCampo(item: Record<string, unknown>, campos: string[]) {
+  for (const campo of campos) {
+    const valor = item[campo];
+
+    if (valor !== undefined && valor !== null && String(valor).trim() !== "") {
+      return String(valor);
+    }
+  }
+
+  return "";
+}
+
+function valorCampo(item: Record<string, unknown>) {
+  for (const campo of ["valor", "preco", "preco_atual", "cotacao", "ultimo", "value"]) {
+    const valor = item[campo];
+
+    if (valor !== undefined && valor !== null && String(valor).trim() !== "") {
+      return String(valor);
+    }
+  }
+
+  return "";
+}
+
+function procurarPorTermos(lista: unknown[], termos: string[]) {
+  return lista
+    .map(comoRegistro)
+    .find((item) => {
+      const base = [
+        textoCampo(item, ["indicador", "nome", "descricao", "ticker", "ativo", "simbolo", "codigo"]),
+        textoCampo(item, ["fonte", "categoria", "tipo"]),
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return termos.some((termo) => base.includes(termo.toLowerCase()));
+    });
+}
+
+function formatarPercentual(valor: string, unidade?: string) {
+  if (!valor) return "";
+
+  const numero = Number(String(valor).replace(",", "."));
+
+  if (Number.isNaN(numero)) {
+    return unidade ? `${valor} ${unidade}` : valor;
+  }
+
+  const formatado = numero.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  if (unidade && unidade.includes("%")) {
+    return `${formatado}${unidade.replace("%", "%").replace(" a.m.", " a.m.")}`;
+  }
+
+  return `${formatado}${unidade ? ` ${unidade}` : ""}`;
+}
+
+function montarAnaliseEducativa({
+  resumoMercado,
+  indicadores,
+  ativos,
+}: {
+  resumoMercado: string;
+  indicadores: unknown[];
+  ativos: unknown[];
+}) {
+  const di = procurarPorTermos(indicadores, ["di acumulado", "cdi", "di/cdi"]);
+  const selic = procurarPorTermos(indicadores, ["selic acumulada", "selic"]);
+  const bitcoin = procurarPorTermos(ativos, ["bitcoin", "btc"]);
+
+  const partes: string[] = [];
+
+  if (resumoMercado) {
+    partes.push(resumoMercado);
+  }
+
+  if (di) {
+    const valor = valorCampo(di);
+    const unidade = textoCampo(di, ["unidade"]);
+
+    if (valor) {
+      partes.push(`O DI acumulado no mês está em ${formatarPercentual(valor, unidade)}, um indicador importante para entender o custo do dinheiro e a referência de renda fixa.`);
+    }
+  }
+
+  if (selic) {
+    const valor = valorCampo(selic);
+    const unidade = textoCampo(selic, ["unidade"]);
+
+    if (valor) {
+      partes.push(`A Selic acumulada no mês aparece em ${formatarPercentual(valor, unidade)}, ajudando a medir o ritmo dos juros no período.`);
+    }
+  }
+
+  if (bitcoin) {
+    const nome = textoCampo(bitcoin, ["nome", "ativo", "ticker", "simbolo"]) || "Bitcoin";
+    const valor = valorCampo(bitcoin);
+
+    if (valor) {
+      partes.push(`${nome} também entra no radar como termômetro de apetite a risco no mercado.`);
+    }
+  }
+
+  if (partes.length === 0) {
+    return [
+      "Seu Dash de hoje reúne mercado, empresas, ranking e indicadores macro para ajudar você a começar o dia com mais contexto.",
+      "Use esses dados como ponto de partida educativo antes de analisar empresas ou tomar decisões financeiras.",
+    ];
+  }
+
+  return partes.slice(0, 4);
+}
+
 export default function HomeHero({
+  saudacao,
   dataHoje,
   resumoMercado,
   erro,
@@ -20,6 +160,37 @@ export default function HomeHero({
   indicadores,
   ativos,
 }: HomeHeroProps) {
+  const [usuario, setUsuario] = useState<UsuarioDash | null>(null);
+  const [sessaoVerificada, setSessaoVerificada] = useState(false);
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("dash_token");
+      const usuarioSalvo = localStorage.getItem("dash_usuario");
+
+      if (token || usuarioSalvo) {
+        if (usuarioSalvo) {
+          setUsuario(JSON.parse(usuarioSalvo));
+        } else {
+          setUsuario({ nome: "investidor" });
+        }
+      }
+    } catch {
+      setUsuario(null);
+    } finally {
+      setSessaoVerificada(true);
+    }
+  }, []);
+
+  const estaLogado = sessaoVerificada && !!usuario;
+  const nome = primeiroNome(usuario?.nome);
+
+  const analiseEducativa = montarAnaliseEducativa({
+    resumoMercado,
+    indicadores,
+    ativos,
+  });
+
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-slate-950">
       <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-sky-400/10 blur-3xl" />
@@ -35,42 +206,85 @@ export default function HomeHero({
             {dataHoje}
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-tight text-white md:text-7xl">
-            Entenda o mercado em poucos minutos.
-          </h1>
+          {estaLogado ? (
+            <>
+              <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-tight text-white md:text-7xl">
+                {saudacao}, {nome}.
+              </h1>
 
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            Acompanhe empresas, indicadores, rankings e receba explicações simples
-            com a IA do Dash.
-          </p>
+              <div className="mt-6 max-w-2xl space-y-3 text-lg leading-8 text-slate-300">
+                {analiseEducativa.map((linha) => (
+                  <p key={linha}>{linha}</p>
+                ))}
+              </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              href="/cadastro"
-              className="inline-flex justify-center rounded-full bg-sky-400 px-8 py-4 text-base font-black text-slate-950 transition hover:bg-sky-300"
-            >
-              Criar minha conta grátis
-            </Link>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href="/empresas"
+                  className="inline-flex justify-center rounded-full bg-sky-400 px-8 py-4 text-base font-black text-slate-950 transition hover:bg-sky-300"
+                >
+                  Ver empresas
+                </Link>
 
-            <Link
-              href="/entrar"
-              className="inline-flex justify-center rounded-full border border-white/10 px-6 py-4 text-sm font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
-            >
-              Já tenho conta
-            </Link>
-          </div>
+                <Link
+                  href="/ranking"
+                  className="inline-flex justify-center rounded-full border border-white/10 px-6 py-4 text-sm font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
+                >
+                  Ver ranking
+                </Link>
 
-          <p className="mt-4 text-sm leading-6 text-slate-500">
-            Gratuito para começar. Não fazemos recomendações de investimento.
-            <Link href="/planos" className="ml-1 font-bold text-sky-300 hover:text-sky-200">
-              Conhecer planos.
-            </Link>
-          </p>
+                <Link
+                  href="/ia"
+                  className="inline-flex justify-center rounded-full border border-white/10 px-6 py-4 text-sm font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
+                >
+                  Abrir IA
+                </Link>
+              </div>
+
+              <p className="mt-4 text-sm leading-6 text-slate-500">
+                A IA é um recurso Premium. O Dash é educativo e não faz recomendações de investimento.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-tight text-white md:text-7xl">
+                Entenda o mercado em poucos minutos.
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+                Acompanhe empresas, indicadores, rankings e receba explicações simples
+                com a IA do Dash.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href="/cadastro"
+                  className="inline-flex justify-center rounded-full bg-sky-400 px-8 py-4 text-base font-black text-slate-950 transition hover:bg-sky-300"
+                >
+                  Criar minha conta grátis
+                </Link>
+
+                <Link
+                  href="/entrar"
+                  className="inline-flex justify-center rounded-full border border-white/10 px-6 py-4 text-sm font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
+                >
+                  Já tenho conta
+                </Link>
+              </div>
+
+              <p className="mt-4 text-sm leading-6 text-slate-500">
+                Gratuito para começar. Não fazemos recomendações de investimento.
+                <Link href="/planos" className="ml-1 font-bold text-sky-300 hover:text-sky-200">
+                  Conhecer planos.
+                </Link>
+              </p>
+            </>
+          )}
 
           <div className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <p className="text-2xl font-black text-white">
-                {empresas.length || "50+"}
+                {empresas.length || "100"}
               </p>
               <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                 empresas
@@ -79,7 +293,7 @@ export default function HomeHero({
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <p className="text-2xl font-black text-white">
-                {ranking.length || "ranking"}
+                {ranking.length || "20"}
               </p>
               <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                 análises
@@ -105,7 +319,7 @@ export default function HomeHero({
                   Dash Diário
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  Mercado do dia
+                  {estaLogado ? "Seu mercado do dia" : "Mercado do dia"}
                 </p>
               </div>
 
@@ -190,10 +404,10 @@ export default function HomeHero({
             </div>
 
             <Link
-              href="/cadastro"
+              href={estaLogado ? "/perfil" : "/cadastro"}
               className="mt-5 inline-flex w-full justify-center rounded-full bg-white px-6 py-4 text-sm font-black text-slate-950 transition hover:bg-sky-100"
             >
-              Criar gratuitamente meu Dash
+              {estaLogado ? "Abrir meu perfil" : "Criar gratuitamente meu Dash"}
             </Link>
           </div>
         </div>
