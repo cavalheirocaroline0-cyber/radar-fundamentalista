@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
+import MeuPlanoCard from "@/components/MeuPlanoCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -154,6 +155,10 @@ export default function PerfilPage() {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
         <Header />
+
+      <div className="mx-auto max-w-7xl px-6 pt-8">
+        <MeuPlanoCard />
+      </div>
         <section className="mx-auto max-w-5xl px-6 py-16">
           <p className="text-slate-300">Carregando seu perfil...</p>
         </section>

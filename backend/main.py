@@ -625,6 +625,9 @@ def buscar_usuario_por_token(authorization: Optional[str]):
                 u.nome,
                 u.email,
                 u.plano,
+                u.status_assinatura,
+                u.trial_inicio,
+                u.trial_fim,
                 u.criado_em
             FROM public.usuarios u
             INNER JOIN public.sessoes_usuario s
@@ -673,7 +676,7 @@ def cadastrar_usuario(dados: CadastroUsuario):
                 senha_hash
             )
             VALUES (%s, %s, %s)
-            RETURNING id, nome, email, plano, criado_em;
+            RETURNING id, nome, email, plano, status_assinatura, trial_inicio, trial_fim, criado_em;
             """,
             (nome, email, senha_hash),
         )

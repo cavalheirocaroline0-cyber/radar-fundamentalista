@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import HomeHero from "@/components/HomeHero";
-import PlanosHome from "@/components/PlanosHome";
 import SaudacaoHome from "@/components/SaudacaoHome";
 import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
