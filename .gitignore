@@ -19,3 +19,4 @@ backend/.env
 backend/venv/
 __pycache__/
 *.pyc
+android/dash-diario-twa/android.keystore
