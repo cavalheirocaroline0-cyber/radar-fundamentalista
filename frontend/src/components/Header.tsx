@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -11,7 +12,7 @@ const desktopLinks = [
 
 const mobileLinks = [
   { href: "/", label: "Home", icon: "☀️" },
-  { href: "/empresas", label: "Empresas", icon: "🏢" },
+  { href: "/empresas", label: "Empresas", icon: "▦" },
   { href: "/perfil", label: "Carteira", icon: "⭐" },
   { href: "/ia", label: "IA", icon: "🤖" },
   { href: "/perfil", label: "Perfil", icon: "👤" },
@@ -21,20 +22,34 @@ export default function Header() {
   const [logado, setLogado] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("dash_token");
-    setLogado(Boolean(token));
+    const verificarLogin = () => {
+      const token = localStorage.getItem("token");
+      setLogado(Boolean(token));
+    };
+
+    verificarLogin();
+    window.addEventListener("storage", verificarLogin);
+
+    return () => {
+      window.removeEventListener("storage", verificarLogin);
+    };
   }, []);
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="group flex items-center gap-3">
-            <div className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-sky-400/30 bg-sky-400/10 text-base font-black text-sky-300 md:flex">
-              D
-            </div>
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
+            <Image
+              src="/dash-icon-navbar.png"
+              alt="Ícone do Dash Diário"
+              width={44}
+              height={44}
+              priority
+              className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-[0_0_15px_rgba(14,165,233,0.35)] sm:h-11 sm:w-11"
+            />
 
-            <div>
+            <div className="min-w-0">
               <div className="flex items-end gap-2 leading-none">
                 <span className="text-2xl font-black tracking-tight text-sky-300">
                   Dash
