@@ -21,19 +21,12 @@ type UsuarioDash = {
   status_assinatura?: string;
 };
 
-function usuarioTemPremium(usuario: UsuarioDash | null) {
-  const plano = String(usuario?.plano || "").toLowerCase();
-  const status = String(usuario?.status_assinatura || "").toLowerCase();
-
-  return plano === "premium" || status === "ativo" || status === "trial";
-}
-
 export default function IAPage() {
   const [pergunta, setPergunta] = useState("");
   const [resposta, setResposta] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
-  const [checandoPlano, setChecandoPlano] = useState(true);
+  const [checandoUsuario, setChecandoUsuario] = useState(true);
   const [usuario, setUsuario] = useState<UsuarioDash | null>(null);
 
   useEffect(() => {
@@ -72,9 +65,9 @@ export default function IAPage() {
           localStorage.setItem("dash_usuario", JSON.stringify(usuarioAtualizado));
         }
       } catch {
-        // Mantém a checagem local se houver erro.
+        // Se falhar, mantém o usuário salvo localmente, quando existir.
       } finally {
-        setChecandoPlano(false);
+        setChecandoUsuario(false);
       }
     }
 
@@ -120,18 +113,19 @@ export default function IAPage() {
     }
   }
 
-  if (checandoPlano) {
+  if (checandoUsuario) {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
         <Header />
+
         <section className="mx-auto max-w-5xl px-6 py-12">
-          <p className="text-slate-300">Verificando seu plano...</p>
+          <p className="text-slate-300">Preparando a IA do Dash...</p>
         </section>
       </main>
     );
   }
 
-  if (!usuarioTemPremium(usuario)) {
+  if (!usuario) {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
         <Header />
@@ -139,59 +133,38 @@ export default function IAPage() {
         <section className="mx-auto max-w-5xl px-6 py-12">
           <div className="rounded-[2rem] border border-sky-400/20 bg-white/[0.04] p-6 md:p-10">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-sky-300">
-              Recurso Premium
+              IA liberada no beta
             </p>
 
             <h1 className="mt-4 text-4xl font-black md:text-5xl">
-              A IA do Dash está no plano Premium.
+              Crie sua conta grátis para usar a IA do Dash.
             </h1>
 
             <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">
-              Você pode continuar usando o Dash gratuitamente para acompanhar empresas,
-              rankings, indicadores e watchlist. Para usar a IA, ative o Premium com
-              7 dias grátis e depois R$ 5,00 por semana.
+              Durante o período beta, a IA está liberada para usuários cadastrados.
+              Crie sua conta gratuitamente e use o Dash para entender mercado,
+              empresas, indicadores e rankings em linguagem simples.
             </p>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-5">
-                <h2 className="text-2xl font-black">
-                  Seu plano atual
-                </h2>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/cadastro"
+                className="inline-flex justify-center rounded-full bg-sky-400 px-8 py-4 text-base font-black text-slate-950 transition hover:bg-sky-300"
+              >
+                Criar minha conta grátis
+              </Link>
 
-                <p className="mt-3 text-sm leading-7 text-slate-300">
-                  Recursos liberados: Home, Empresas, Ranking, Macro, Perfil e Watchlist.
-                </p>
-
-                <Link
-                  href="/empresas"
-                  className="mt-6 inline-flex w-full justify-center rounded-full border border-white/20 px-6 py-4 text-center font-black text-white transition hover:border-sky-400 hover:text-sky-300"
-                >
-                  Continuar no gratuito
-                </Link>
-              </div>
-
-              <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 p-5">
-                <h2 className="text-2xl font-black">
-                  Premium com IA
-                </h2>
-
-                <p className="mt-3 text-sm leading-7 text-slate-300">
-                  Primeira semana grátis. Depois, R$ 5,00 por semana.
-                </p>
-
-                <Link
-                  href="/checkout?plano=premium"
-                  className="mt-6 inline-flex w-full justify-center rounded-full bg-sky-400 px-6 py-4 text-center font-black text-slate-950 transition hover:bg-sky-300"
-                >
-                  Começar 7 dias grátis
-                </Link>
-              </div>
+              <Link
+                href="/entrar"
+                className="inline-flex justify-center rounded-full border border-white/15 px-8 py-4 text-base font-bold text-slate-300 transition hover:border-sky-400 hover:text-sky-300"
+              >
+                Já tenho conta
+              </Link>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
-              A IA do Dash é educativa e informativa. Ela não recomenda compra,
-              venda ou manutenção de ativos.
-            </div>
+            <p className="mt-5 text-xs leading-5 text-slate-500">
+              O Dash Diário é educativo e informativo. Não fazemos recomendações de investimento.
+            </p>
           </div>
         </section>
       </main>
@@ -204,8 +177,8 @@ export default function IAPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-10">
         <div className="rounded-[2rem] border border-sky-400/20 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-slate-950 p-6 shadow-2xl shadow-sky-950/30 md:p-10">
-          <div className="inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-4 py-2 text-sm font-semibold text-sky-300">
-            🤖 Assistente IA Premium
+          <div className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-semibold text-emerald-300">
+            ✨ IA liberada no beta
           </div>
 
           <h1 className="mt-6 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">
@@ -213,8 +186,9 @@ export default function IAPage() {
           </h1>
 
           <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-            Tire dúvidas sobre indicadores, empresas, mercado e conceitos fundamentalistas
-            com uma explicação simples, direta e educativa.
+            Durante o beta, todos os usuários cadastrados podem usar a IA do Dash
+            para entender indicadores, empresas, rankings e cenário de mercado
+            com explicações simples e educativas.
           </p>
 
           <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
@@ -287,6 +261,7 @@ export default function IAPage() {
               <p className="text-sm font-semibold text-white">
                 Melhor uso da IA
               </p>
+
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Use para entender conceitos, comparar indicadores e estudar empresas.
                 Para decisões financeiras, faça sua própria análise ou consulte um profissional.

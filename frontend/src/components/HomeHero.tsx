@@ -242,7 +242,7 @@ export default function HomeHero({
               </div>
 
               <p className="mt-4 text-sm leading-6 text-slate-500">
-                A IA é um recurso Premium. O Dash é educativo e não faz recomendações de investimento.
+                Durante o beta, a IA está liberada para usuários cadastrados. O Dash é educativo e não faz recomendações de investimento.
               </p>
             </>
           ) : (
@@ -305,7 +305,7 @@ export default function HomeHero({
                 IA
               </p>
               <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                premium
+                beta
               </p>
             </div>
           </div>
