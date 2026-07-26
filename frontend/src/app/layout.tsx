@@ -4,6 +4,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import Footer from "@/components/Footer";
 import "./globals.css";
 
+import DashVoiceAssistant from "@/components/DashVoiceAssistant";
 export const metadata: Metadata = {
   title: "Dash Diário",
   description:
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body>
         {children}
 	<Footer />
+        <DashVoiceAssistant />
         <InstallAppButton />
         <MobileBottomNav />
       </body>
