@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import "./globals.css";
 
 import DashVoiceAssistant from "@/components/DashVoiceAssistant";
+import GoogleAdsTag from "@/components/GoogleAdsTag";
 export const metadata: Metadata = {
   title: "Dash Diário",
   description:
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        <GoogleAdsTag />
         {children}
 	<Footer />
         <DashVoiceAssistant />
