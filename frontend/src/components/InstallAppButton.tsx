@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -11,6 +12,7 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 export default function InstallAppButton() {
+  const pathname = usePathname();
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
 
@@ -34,8 +36,10 @@ export default function InstallAppButton() {
       (window.navigator.platform === "MacIntel" &&
         window.navigator.maxTouchPoints > 1);
 
-    setIsInstalled(isStandalone);
-    setIsIos(isIosDevice);
+    const detectionTimer = window.setTimeout(() => {
+      setIsInstalled(isStandalone);
+      setIsIos(isIosDevice);
+    }, 0);
 
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -51,6 +55,7 @@ export default function InstallAppButton() {
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
+      window.clearTimeout(detectionTimer);
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt
@@ -77,7 +82,7 @@ export default function InstallAppButton() {
     setInstallPrompt(null);
   };
 
-  if (isInstalled) {
+  if (pathname === "/" || isInstalled) {
     return null;
   }
 

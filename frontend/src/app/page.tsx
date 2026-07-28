@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import HomeHero from "@/components/HomeHero";
-import SaudacaoHome from "@/components/SaudacaoHome";
+import InstallExperience from "@/components/InstallExperience";
 import { buscarEmpresas, buscarMacro, buscarRanking, buscarEmpresasDoDia } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -178,8 +178,8 @@ export default async function Home() {
   const resumoMercado = gerarResumoMercado(ativosHome);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-<Header />
+    <main className="min-h-screen bg-[#020817] pb-24 text-white md:pb-0">
+      <Header />
       <HomeHero
         saudacao={saudacao}
         dataHoje={dataHoje}
@@ -191,35 +191,10 @@ export default async function Home() {
         ativos={ativos}
       />
 
+      <InstallExperience />
 
-      <section className="mx-auto max-w-7xl px-6 py-12">
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-slate-400">Hábito</p>
-            <h2 className="mt-2 text-2xl font-semibold">Resumo diário</h2>
-            <p className="mt-3 text-sm text-slate-300">
-              Uma entrada rápida para entender o mercado antes de começar o dia.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-slate-400">Produto</p>
-            <h2 className="mt-2 text-2xl font-semibold">Dados simples</h2>
-            <p className="mt-3 text-sm text-slate-300">
-              Empresas, ranking, macro e páginas individuais por ticker.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-slate-400">Próximo diferencial</p>
-            <h2 className="mt-2 text-2xl font-semibold">IA de análise</h2>
-            <p className="mt-3 text-sm text-slate-300">
-              Explicações simples sobre empresas, riscos e indicadores.
-            </p>
-          </div>
-        </div>
-
-        <section className="mt-14">
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 md:py-20">
+        <section>
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">

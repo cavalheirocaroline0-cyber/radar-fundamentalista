@@ -10,20 +10,12 @@ const desktopLinks = [
   { href: "/ranking", label: "Ranking" },
 ];
 
-const mobileLinks = [
-  { href: "/", label: "Home", icon: "☀️" },
-  { href: "/empresas", label: "Empresas", icon: "▦" },
-  { href: "/perfil", label: "Carteira", icon: "⭐" },
-  { href: "/ia", label: "IA", icon: "🤖" },
-  { href: "/perfil", label: "Perfil", icon: "👤" },
-];
-
 export default function Header() {
   const [logado, setLogado] = useState(false);
 
   useEffect(() => {
     const verificarLogin = () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("dash_token");
       setLogado(Boolean(token));
     };
 
@@ -36,8 +28,7 @@ export default function Header() {
   }, []);
 
   return (
-    <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/8 bg-[#020817]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex min-w-0 items-center gap-3">
             <Image
@@ -85,21 +76,5 @@ export default function Header() {
           </nav>
         </div>
       </header>
-
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-slate-950/95 px-3 py-2 backdrop-blur-xl md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
-          {mobileLinks.map((link) => (
-            <Link
-              key={`${link.href}-${link.label}`}
-              href={link.href}
-              className="flex flex-col items-center justify-center rounded-2xl px-2 py-2 text-xs font-semibold text-slate-400 transition hover:bg-sky-400/10 hover:text-sky-300"
-            >
-              <span className="text-lg leading-none">{link.icon}</span>
-              <span className="mt-1">{link.label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    </>
   );
 }
