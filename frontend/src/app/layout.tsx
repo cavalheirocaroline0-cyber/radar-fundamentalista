@@ -7,9 +7,12 @@ import "./globals.css";
 import DashVoiceAssistant from "@/components/DashVoiceAssistant";
 import GoogleAdsTag from "@/components/GoogleAdsTag";
 export const metadata: Metadata = {
-  title: "Dash Diário",
+  title: {
+    default: "Dash Diário — Todo dia começa com o Dash",
+    template: "%s | Dash Diário",
+  },
   description:
-    "Aplicativo de acompanhamento diário de empresas, indicadores fundamentalistas, rankings e mercado.",
+    "Acompanhe empresas, indicadores, rankings e entenda o mercado com a IA do Dash Diário.",
   applicationName: "Dash Diário",
   manifest: "/manifest.json",
   icons: {
